@@ -9,6 +9,7 @@ use reveaal::protobuf_server::{
     },
     ConcreteEcdarBackend,
 };
+use reveaal::ComponentLoader;
 use tonic::Request;
 
 use criterion::async_executor::FuturesExecutor;

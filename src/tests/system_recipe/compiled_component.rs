@@ -4,16 +4,14 @@ mod test {
     use std::collections::HashSet;
 
     use crate::extract_system_rep::ExecutableQueryError;
-    use crate::{
-        system::query_failures::{ActionFailure, SystemRecipeFailure},
-        tests::refinement::helper::json_run_query,
-    };
+    use crate::system::query_failures::{ActionFailure, SystemRecipeFailure};
+    use crate::tests::refinement::helper::run_query;
 
     const PATH: &str = "samples/json/SystemRecipe/CompiledComponent";
 
     #[test]
     fn compiled_component1_fails_correctly() {
-        let actual = json_run_query(PATH, "consistency: CompiledComponent1").unwrap_err();
+        let actual = run_query(PATH, "consistency: CompiledComponent1").unwrap_err();
         assert!(matches!(
             actual,
             ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
@@ -29,7 +27,7 @@ mod test {
         if let Some(ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
             ActionFailure::NotDisjoint(left, right),
             _,
-        ))) = json_run_query(PATH, "consistency: CompiledComponent1").err()
+        ))) = run_query(PATH, "consistency: CompiledComponent1").err()
         {
             assert_eq!(
                 left.actions
@@ -45,7 +43,7 @@ mod test {
 
     #[test]
     fn compiled_component2_fails_correctly() {
-        let actual = json_run_query(PATH, "consistency: CompiledComponent2").unwrap_err();
+        let actual = run_query(PATH, "consistency: CompiledComponent2").unwrap_err();
         assert!(matches!(
             actual,
             ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
@@ -61,7 +59,7 @@ mod test {
         if let Some(ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
             ActionFailure::NotDisjoint(left, right),
             _,
-        ))) = json_run_query(PATH, "consistency: CompiledComponent2").err()
+        ))) = run_query(PATH, "consistency: CompiledComponent2").err()
         {
             assert_eq!(
                 left.actions
@@ -77,7 +75,7 @@ mod test {
 
     #[test]
     fn compiled_component3_fails_correctly() {
-        let actual = json_run_query(PATH, "consistency: CompiledComponent3").unwrap_err();
+        let actual = run_query(PATH, "consistency: CompiledComponent3").unwrap_err();
         assert!(matches!(
             actual,
             ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
@@ -94,7 +92,7 @@ mod test {
         if let Some(ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
             ActionFailure::NotDisjoint(left, right),
             _,
-        ))) = json_run_query(PATH, "consistency: CompiledComponent3").err()
+        ))) = run_query(PATH, "consistency: CompiledComponent3").err()
         {
             assert_eq!(
                 left.actions

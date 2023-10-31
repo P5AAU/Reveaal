@@ -1,8 +1,7 @@
 #[cfg(test)]
 mod reachability_search_algorithm_test {
 
-    use crate::system::query_failures::QueryResult;
-    use crate::tests::refinement::helper::json_run_query;
+    use crate::{system::query_failures::QueryResult, tests::refinement::helper::run_query};
     use test_case::test_case;
 
     const PATH: &str = "samples/json/EcdarUniversity";
@@ -28,7 +27,7 @@ mod reachability_search_algorithm_test {
     #[test_case(PATH, "reachability: Researcher[1] && Researcher[2] @ Researcher[1].U0 && Researcher[2].U0 -> Researcher[1].L6 && Researcher[2].U0", false; "Trivially unreachable")]
     #[test_case(PATH, "reachability: Researcher[1] && Researcher[2] @ Researcher[1].U0 && Researcher[2].U0 -> Researcher[2].U0", true; "Trivially reachable because _ is U0")]
     fn search_algorithm_returns_result_university(path: &str, query: &str, expected: bool) {
-        match json_run_query(path, query).unwrap() {
+        match run_query(path, query).unwrap() {
             QueryResult::Reachability(path) => assert_eq!(path.is_ok(), expected),
             _ => panic!("Inconsistent query result, expected Reachability"),
         }
@@ -50,7 +49,7 @@ mod reachability_search_algorithm_test {
     #[test_case(PATH2, "reachability: Component7 @ Component7.L16 -> Component7.L19 && Component7.y<2", false; "Unreachable due to second clock")]
     #[test_case(PATH2, "reachability: Component3[1] && Component3[2] @ Component3[1].L6 && Component3[2].L6 -> Component3[1].L7 && Component3[2].L7", true; "Simple conjunction")]
     fn search_algorithm_returns_result(path: &str, query: &str, expected: bool) {
-        match json_run_query(path, query).unwrap() {
+        match run_query(path, query).unwrap() {
             QueryResult::Reachability(path) => assert_eq!(path.is_ok(), expected),
             _ => panic!("Inconsistent query result, expected Reachability"),
         }
@@ -66,7 +65,7 @@ mod reachability_search_algorithm_test {
     #[test_case(PATH2, "reachability: Component9 @ Component9.L23 && Component9.x>5 -> Component9.L26", vec!["E17", "E18"]; "Path in Component9 from L23 x gt 5 to L26")]
     #[test_case(PATH2, "reachability: Component9 @ Component9.L23 && Component9.x<5 -> Component9.L26", vec!["E16", "E19"]; "Path in Component9 from L23 x lt 5 to L26")]
     fn path_gen_test_correct_path(folder_path: &str, query: &str, expected_path: Vec<&str>) {
-        match json_run_query(folder_path, query).unwrap() {
+        match run_query(folder_path, query).unwrap() {
             QueryResult::Reachability(actual_path) => {
                 let actual_path = actual_path.unwrap_or_else(|_| {
                     panic!(
@@ -103,7 +102,7 @@ mod reachability_search_algorithm_test {
         query: &str,
         expected_path: Vec<Vec<&str>>,
     ) {
-        match json_run_query(folder_path, query).unwrap() {
+        match run_query(folder_path, query).unwrap() {
             QueryResult::Reachability(actual_path) => {
                 let actual_path = actual_path.unwrap_or_else(|_| {
                     panic!(

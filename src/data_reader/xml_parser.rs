@@ -12,10 +12,6 @@ use std::io::BufReader;
 use std::io::Read;
 use std::path::Path;
 
-pub fn is_xml_project<P: AsRef<Path>>(project_path: P) -> bool {
-    project_path.as_ref().ends_with(".xml")
-}
-
 ///Used to parse systems described in xml
 pub(crate) fn parse_xml_from_file<P: AsRef<Path>>(
     file_name: P,

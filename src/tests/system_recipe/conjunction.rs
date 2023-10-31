@@ -6,7 +6,7 @@ mod test {
     use crate::{
         system::extract_system_rep::ExecutableQueryError,
         system::query_failures::{ActionFailure, SystemRecipeFailure},
-        tests::refinement::helper::json_run_query,
+        tests::refinement::helper::run_query,
     };
 
     const PATH: &str = "samples/json/SystemRecipe/Conjunction";
@@ -14,7 +14,7 @@ mod test {
     #[test]
     fn conjunction1_fails_correctly() {
         let actual =
-            json_run_query(PATH, "consistency: LeftConjunction1 && RightConjunction1").unwrap_err();
+            run_query(PATH, "consistency: LeftConjunction1 && RightConjunction1").unwrap_err();
         assert!(matches!(
             actual,
             ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
@@ -30,7 +30,7 @@ mod test {
         if let Some(ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
             ActionFailure::NotDisjoint(left, right),
             _,
-        ))) = json_run_query(PATH, "consistency: LeftConjunction1 && RightConjunction1").err()
+        ))) = run_query(PATH, "consistency: LeftConjunction1 && RightConjunction1").err()
         {
             assert_eq!(
                 left.actions
@@ -47,7 +47,7 @@ mod test {
     #[test]
     fn conjunction2_fails_correctly() {
         let actual =
-            json_run_query(PATH, "consistency: LeftConjunction2 && RightConjunction2").unwrap_err();
+            run_query(PATH, "consistency: LeftConjunction2 && RightConjunction2").unwrap_err();
         assert!(matches!(
             actual,
             ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
@@ -63,7 +63,7 @@ mod test {
         if let Some(ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
             ActionFailure::NotDisjoint(left, right),
             _,
-        ))) = json_run_query(PATH, "consistency: LeftConjunction2 && RightConjunction2").err()
+        ))) = run_query(PATH, "consistency: LeftConjunction2 && RightConjunction2").err()
         {
             assert_eq!(
                 left.actions
@@ -80,7 +80,7 @@ mod test {
     #[test]
     fn conjunction3_fails_correctly() {
         let actual =
-            json_run_query(PATH, "consistency: LeftConjunction3 && RightConjunction3").unwrap_err();
+            run_query(PATH, "consistency: LeftConjunction3 && RightConjunction3").unwrap_err();
         assert!(matches!(
             actual,
             ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
@@ -96,7 +96,7 @@ mod test {
         if let Some(ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
             ActionFailure::NotDisjoint(left, right),
             _,
-        ))) = json_run_query(PATH, "consistency: LeftConjunction3 && RightConjunction3").err()
+        ))) = run_query(PATH, "consistency: LeftConjunction3 && RightConjunction3").err()
         {
             assert_eq!(
                 left.actions

@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+
 use criterion::{criterion_group, criterion_main, Criterion};
 
 mod bench_helper;
@@ -10,10 +12,10 @@ use reveaal::system::executable_query::ExecutableQuery;
 use reveaal::system::query_failures::QueryResult;
 use reveaal::{parse_queries, ComponentLoader};
 
-fn construct_query<'a>(
+fn construct_query(
     query: &str,
-    loader: &'a mut Box<dyn ComponentLoader>,
-) -> Box<dyn ExecutableQuery + 'a> {
+    loader: Arc<Mutex<dyn ComponentLoader>>,
+) -> Box<dyn ExecutableQuery> {
     let query = parse_queries::parse_to_expression_tree(query)
         .unwrap()
         .remove(0);
@@ -22,10 +24,10 @@ fn construct_query<'a>(
         comment: "".to_string(),
     };
 
-    create_executable_query(&q, loader.as_mut()).unwrap()
+    create_executable_query(&q, loader).unwrap()
 }
 
-fn bench_refinement(c: &mut Criterion, query: &str, loader: &mut Box<dyn ComponentLoader>) {
+fn bench_refinement(c: &mut Criterion, query: &str, loader: Arc<Mutex<dyn ComponentLoader>>) {
     c.bench_function(query, |b| {
         b.iter(|| match construct_query(query, loader).execute() {
             QueryResult::Refinement(Ok(_)) => (),
@@ -34,7 +36,7 @@ fn bench_refinement(c: &mut Criterion, query: &str, loader: &mut Box<dyn Compone
     });
 }
 
-fn bench_non_refinement(c: &mut Criterion, query: &str, loader: &mut Box<dyn ComponentLoader>) {
+fn bench_non_refinement(c: &mut Criterion, query: &str, loader: Arc<Mutex<dyn ComponentLoader>>) {
     c.bench_function(&format!("NOT {query}"), |b| {
         b.iter(|| match construct_query(query, loader).execute() {
             QueryResult::Refinement(Err(_)) => (),
@@ -43,11 +45,11 @@ fn bench_non_refinement(c: &mut Criterion, query: &str, loader: &mut Box<dyn Com
     });
 }
 
-fn bench_self_refinement(c: &mut Criterion, query: &str, loader: &mut Box<dyn ComponentLoader>) {
+fn bench_self_refinement(c: &mut Criterion, query: &str, loader: Arc<Mutex<dyn ComponentLoader>>) {
     bench_refinement(c, &format!("refinement: {query} <= {query}"), loader);
 }
 
-fn self_refinement(c: &mut Criterion, loader: &mut Box<dyn ComponentLoader>) {
+fn self_refinement(c: &mut Criterion, loader: Arc<Mutex<dyn ComponentLoader>>) {
     bench_self_refinement(c, "Adm2", loader);
     bench_self_refinement(c, "Administration", loader);
     bench_self_refinement(c, "HalfAdm1", loader);
@@ -59,7 +61,7 @@ fn self_refinement(c: &mut Criterion, loader: &mut Box<dyn ComponentLoader>) {
     bench_self_refinement(c, "Administration || Researcher || Machine", loader);
 }
 
-fn refinement(c: &mut Criterion, loader: &mut Box<dyn ComponentLoader>) {
+fn refinement(c: &mut Criterion, loader: Arc<Mutex<dyn ComponentLoader>>) {
     bench_refinement(
         c,
         "refinement: Researcher <= Spec // Administration // Machine",
@@ -92,7 +94,7 @@ fn refinement(c: &mut Criterion, loader: &mut Box<dyn ComponentLoader>) {
     );
 }
 
-fn not_refinement(c: &mut Criterion, loader: &mut Box<dyn ComponentLoader>) {
+fn not_refinement(c: &mut Criterion, loader: Arc<Mutex<dyn ComponentLoader>>) {
     bench_non_refinement(
         c,
         "refinement: Adm2 <= Spec // Researcher // Machine",
@@ -111,11 +113,11 @@ fn not_refinement(c: &mut Criterion, loader: &mut Box<dyn ComponentLoader>) {
 }
 
 fn all_refinements(c: &mut Criterion) {
-    let mut loader = bench_helper::get_uni_loader();
+    let loader = Arc::new(Mutex::new(bench_helper::get_uni_loader()));
 
-    self_refinement(c, &mut loader);
-    refinement(c, &mut loader);
-    not_refinement(c, &mut loader);
+    self_refinement(c, loader);
+    refinement(c, loader);
+    not_refinement(c, loader);
 }
 
 criterion_group! {

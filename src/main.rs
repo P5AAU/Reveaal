@@ -6,11 +6,10 @@ use reveaal::system::query_failures::QueryResult;
 use clap::Parser;
 use reveaal::protobuf_server::services::query_request::Settings;
 use reveaal::{
-    extract_system_rep, parse_queries, start_grpc_server_with_tokio, xml_parser, ComponentLoader,
-    JsonProjectLoader, ProjectLoader, XmlProjectLoader,
+    extract_system_rep, parse_queries, start_grpc_server_with_tokio, ComponentLoader, ProjectLoader,
 };
 use std::env;
-use std::path::Path;
+use std::sync::{Arc, Mutex};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
@@ -31,12 +30,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn start_using_cli(args: Args) {
-    let (mut comp_loader, queries) = parse_args(args);
+    let (project_loader, queries) = parse_args(args);
+    let comp_loader: Arc<Mutex<dyn ComponentLoader>> = Arc::new(Mutex::new(project_loader));
 
     let mut results = vec![];
     for query in &queries {
         let executable_query = Box::new(
-            extract_system_rep::create_executable_query(query, &mut *comp_loader).unwrap(),
+            extract_system_rep::create_executable_query(query, Arc::clone(&comp_loader)).unwrap(),
         );
 
         let result = executable_query.execute();
@@ -54,7 +54,7 @@ fn start_using_cli(args: Args) {
     }
 }
 
-fn parse_args(args: Args) -> (Box<dyn ComponentLoader>, Vec<Query>) {
+fn parse_args(args: Args) -> (ProjectLoader, Vec<Query>) {
     match args {
         Args::Query {
             query,
@@ -71,7 +71,7 @@ fn parse_args(args: Args) -> (Box<dyn ComponentLoader>, Vec<Query>) {
                 disable_clock_reduction: !enable_clock_reduction,
             };
 
-            let project_loader = get_project_loader(input_folder, settings);
+            let project_loader = ProjectLoader::new(input_folder, settings);
 
             let queries = if query.is_empty() {
                 project_loader.get_queries().clone()
@@ -79,20 +79,9 @@ fn parse_args(args: Args) -> (Box<dyn ComponentLoader>, Vec<Query>) {
                 parse_queries::parse_to_query(&query)
             };
 
-            (project_loader.to_comp_loader(), queries)
+            (project_loader, queries)
         }
         _ => unreachable!("This function should only be called when the args are a query"),
-    }
-}
-
-fn get_project_loader<P: AsRef<Path>>(
-    project_path: P,
-    settings: Settings,
-) -> Box<dyn ProjectLoader> {
-    if xml_parser::is_xml_project(&project_path) {
-        XmlProjectLoader::new_loader(project_path, settings)
-    } else {
-        JsonProjectLoader::new_loader(project_path, settings)
     }
 }
 

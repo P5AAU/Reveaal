@@ -6,10 +6,11 @@ pub mod test {
     use crate::system::input_enabler;
     use crate::transition_systems::transition_system::ClockReductionInstruction;
     use crate::transition_systems::TransitionSystemPtr;
-    use crate::{JsonProjectLoader, DEFAULT_SETTINGS};
+    use crate::{ComponentLoader, ProjectLoader, DEFAULT_SETTINGS};
     use edbm::util::constraints::ClockIndex;
     use std::collections::{HashMap, HashSet};
     use std::path::Path;
+    use std::sync::atomic::AtomicUsize;
 
     /// Reads and processes a component.
     pub fn read_json_component_and_process(project_path: &str, component_name: &str) -> Component {
@@ -63,25 +64,23 @@ pub mod test {
         comp2: &str,
     ) -> TransitionSystemPtr {
         let (dim, system_recipe) = get_conjunction_system_recipe(path, comp1, comp2);
-        system_recipe.compile(dim).unwrap()
+        system_recipe.compile(&dim).unwrap()
     }
 
     pub(crate) fn get_conjunction_system_recipe(
         path: &Path,
         comp1: &str,
         comp2: &str,
-    ) -> (ClockIndex, SystemRecipe) {
-        let project_loader =
-            JsonProjectLoader::new_loader(path.to_string_lossy().to_string(), DEFAULT_SETTINGS);
+    ) -> (AtomicUsize, SystemRecipe) {
+        let mut project_loader =
+            ProjectLoader::new(path.to_string_lossy().to_string(), DEFAULT_SETTINGS);
 
-        let mut component_loader = project_loader.to_comp_loader();
+        let mut next_clock_index: AtomicUsize = AtomicUsize::new(0);
+        let mut component1 = project_loader.get_component(comp1).clone();
+        let mut component2 = project_loader.get_component(comp2).clone();
 
-        let mut next_clock_index: usize = 0;
-        let mut component1 = component_loader.get_component(comp1).clone();
-        let mut component2 = component_loader.get_component(comp2).clone();
-
-        component1.set_clock_indices(&mut next_clock_index);
-        component2.set_clock_indices(&mut next_clock_index);
+        component1.set_clock_indices(&next_clock_index);
+        component2.set_clock_indices(&next_clock_index);
 
         let dimensions =
             component1.declarations.clocks.len() + component2.declarations.clocks.len();
@@ -90,7 +89,7 @@ pub mod test {
         let sr_component2 = Box::new(SystemRecipe::Component(Box::new(component2)));
 
         let conjunction = SystemRecipe::Conjunction(sr_component1, sr_component2);
-        (dimensions, conjunction)
+        (dimensions.into(), conjunction)
     }
 
     pub(crate) fn get_composition_transition_system(
@@ -98,17 +97,15 @@ pub mod test {
         comp1: &str,
         comp2: &str,
     ) -> TransitionSystemPtr {
-        let project_loader =
-            JsonProjectLoader::new_loader(path.to_string_lossy().to_string(), DEFAULT_SETTINGS);
+        let mut project_loader =
+            ProjectLoader::new(path.to_string_lossy().to_string(), DEFAULT_SETTINGS);
 
-        let mut component_loader = project_loader.to_comp_loader();
+        let mut next_clock_index = AtomicUsize::new(0);
+        let mut component1 = project_loader.get_component(comp1).clone();
+        let mut component2 = project_loader.get_component(comp2).clone();
 
-        let mut next_clock_index: usize = 0;
-        let mut component1 = component_loader.get_component(comp1).clone();
-        let mut component2 = component_loader.get_component(comp2).clone();
-
-        component1.set_clock_indices(&mut next_clock_index);
-        component2.set_clock_indices(&mut next_clock_index);
+        component1.set_clock_indices(&next_clock_index);
+        component2.set_clock_indices(&next_clock_index);
 
         let dimensions =
             component1.declarations.clocks.len() + component2.declarations.clocks.len();
@@ -118,7 +115,7 @@ pub mod test {
 
         let conjunction = SystemRecipe::Composition(sr_component1, sr_component2);
 
-        conjunction.compile(dimensions).unwrap()
+        conjunction.compile(&dimensions.into()).unwrap()
     }
 
     pub(crate) fn create_clock_name_to_index(

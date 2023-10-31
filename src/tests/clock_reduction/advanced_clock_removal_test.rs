@@ -10,7 +10,7 @@ pub mod test {
 
     #[test]
     fn test_advanced_clock_removal() {
-        let (mut dimensions, system_recipe) = get_conjunction_system_recipe(
+        let (dimensions, system_recipe) = get_conjunction_system_recipe(
             &Path::new(ADVANCED_CLOCK_REDUCTION_PATH).join("Conjunction/Example1"),
             "Component1",
             "Component2",
@@ -18,12 +18,11 @@ pub mod test {
 
         let mut system_recipe_copy = Box::new(system_recipe);
 
-        clock_reduction::clock_reduce(&mut system_recipe_copy, None, &mut dimensions, None)
-            .unwrap();
+        clock_reduction::clock_reduce(&mut system_recipe_copy, None, &dimensions, None).unwrap();
 
         //We let it use the unreduced amount of dimensions so we can catch the error
         //If a clock is not reduced
-        let compiled = system_recipe_copy.compile(dimensions).unwrap();
+        let compiled = system_recipe_copy.compile(&dimensions).unwrap();
 
         for location in compiled.get_all_locations() {
             assert!(location.invariant.is_none(), "Should contain no invariants")

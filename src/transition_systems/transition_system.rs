@@ -15,6 +15,8 @@ use std::collections::hash_map::Entry;
 use std::collections::vec_deque::VecDeque;
 use std::collections::{hash_set::HashSet, HashMap};
 use std::hash::Hash;
+use std::sync::atomic::AtomicUsize;
+use std::sync::{Arc, Mutex};
 
 pub type TransitionSystemPtr = Box<dyn TransitionSystem>;
 pub type Action = String;
@@ -246,19 +248,19 @@ pub fn components_to_transition_system(
     components: Vec<Component>,
     composition: &str,
 ) -> TransitionSystemPtr {
-    let mut component_container = ComponentContainer::from(components);
-    component_loader_to_transition_system(&mut component_container, composition)
+    let component_container = Arc::new(Mutex::new(ComponentContainer::from(components)));
+    component_loader_to_transition_system(component_container, composition)
 }
 
 /// Returns a [`TransitionSystemPtr`] equivalent to a `composition` of some components in a [`ComponentLoader`].
 pub fn component_loader_to_transition_system(
-    loader: &mut dyn ComponentLoader,
+    loader: Arc<Mutex<dyn ComponentLoader>>,
     composition: &str,
 ) -> TransitionSystemPtr {
-    let mut dimension = 0;
+    let dimension = AtomicUsize::new(0);
     let sys_expr = parse_to_system_expr(composition).unwrap();
-    get_system_recipe(&sys_expr, loader, &mut dimension, &mut None)
-        .compile(dimension)
+    get_system_recipe(&sys_expr, loader, &dimension, Arc::new(Mutex::new(None)))
+        .compile(&dimension)
         .unwrap()
 }
 

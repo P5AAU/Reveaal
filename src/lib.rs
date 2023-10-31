@@ -9,9 +9,7 @@ pub mod system;
 pub mod tests;
 pub mod transition_systems;
 
-pub use crate::data_reader::component_loader::{
-    ComponentLoader, JsonProjectLoader, ProjectLoader, XmlProjectLoader,
-};
+pub use crate::data_reader::component_loader::{ComponentLoader, ProjectLoader};
 pub use crate::data_reader::{parse_queries, xml_parser};
 use crate::protobuf_server::services::query_request::Settings;
 pub use crate::system::extract_system_rep;

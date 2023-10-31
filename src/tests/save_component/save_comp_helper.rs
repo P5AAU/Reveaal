@@ -1,6 +1,9 @@
 #[cfg(test)]
 pub mod util {
-    use crate::data_reader::component_loader::JsonProjectLoader;
+    use std::sync::atomic::AtomicUsize;
+    use std::sync::Arc;
+    use std::sync::Mutex;
+
     use crate::data_reader::parse_queries;
     use crate::model_objects::expressions::QueryExpression;
     use crate::system::extract_system_rep;
@@ -9,11 +12,13 @@ pub mod util {
     use crate::system::refine;
     use crate::system::save_component::combine_components;
     use crate::system::save_component::PruningStrategy;
-    use edbm::util::constraints::ClockIndex;
+    use crate::ProjectLoader;
 
     pub fn json_reconstructed_component_refines_base_self(input_path: &str, system: &str) {
-        let project_loader =
-            JsonProjectLoader::new_loader(String::from(input_path), crate::tests::TEST_SETTINGS);
+        let project_loader = Arc::new(Mutex::new(ProjectLoader::new(
+            String::from(input_path),
+            crate::tests::TEST_SETTINGS,
+        )));
 
         //This query is not executed but simply used to extract an UncachedSystem so the tests can just give system expressions
         let str_query = format!("get-component: {} save-as test", system);
@@ -21,28 +26,29 @@ pub mod util {
             .unwrap()
             .remove(0);
 
-        let mut dim: ClockIndex = 0;
+        let dim = AtomicUsize::new(0);
         let (base_system, new_system) = if let QueryExpression::GetComponent(expr) = &query {
-            let mut comp_loader = project_loader.to_comp_loader();
+            let left_project_loader = Arc::clone(&project_loader);
+            let right_project_loader = Arc::clone(&project_loader);
             (
                 extract_system_rep::get_system_recipe(
                     &expr.system,
-                    &mut *comp_loader,
-                    &mut dim,
-                    &mut None,
+                    left_project_loader,
+                    &dim,
+                    Arc::new(Mutex::new(None)),
                 ),
                 extract_system_rep::get_system_recipe(
                     &expr.system,
-                    &mut *comp_loader,
-                    &mut dim,
-                    &mut None,
+                    right_project_loader,
+                    &dim,
+                    Arc::new(Mutex::new(None)),
                 ),
             )
         } else {
             panic!("Failed to create system")
         };
 
-        let new_comp = new_system.compile(dim);
+        let new_comp = new_system.compile(&dim);
         //TODO:: Return the SystemRecipeFailure if new_comp is a failure
         if new_comp.is_err() {
             return;
@@ -50,10 +56,10 @@ pub mod util {
         let new_comp = combine_components(&new_comp.unwrap(), PruningStrategy::NoPruning);
 
         let new_comp = SystemRecipe::Component(Box::new(new_comp))
-            .compile(dim)
+            .compile(&dim)
             .unwrap();
         //TODO:: if it can fail unwrap should be replaced.
-        let base_system = base_system.compile(dim).unwrap();
+        let base_system = base_system.compile(&dim).unwrap();
 
         let base_precheck = base_system.precheck_sys_rep();
         let new_precheck = new_comp.precheck_sys_rep();

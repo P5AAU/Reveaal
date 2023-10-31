@@ -4,17 +4,15 @@ mod test {
     use std::collections::HashSet;
 
     use crate::extract_system_rep::ExecutableQueryError;
-    use crate::{
-        system::query_failures::{ActionFailure, SystemRecipeFailure},
-        tests::refinement::helper::json_run_query,
-    };
+    use crate::system::query_failures::{ActionFailure, SystemRecipeFailure};
+    use crate::tests::refinement::helper::run_query;
 
     const PATH: &str = "samples/json/SystemRecipe/Composition";
 
     #[test]
     fn compostion1_fails_correctly() {
         let actual =
-            json_run_query(PATH, "consistency: LeftComposition1 || RightComposition1").unwrap_err();
+            run_query(PATH, "consistency: LeftComposition1 || RightComposition1").unwrap_err();
         assert!(matches!(
             actual,
             ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
@@ -30,7 +28,7 @@ mod test {
         if let Some(ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
             ActionFailure::NotDisjoint(left, right),
             _,
-        ))) = json_run_query(PATH, "consistency: LeftComposition1 || RightComposition1").err()
+        ))) = run_query(PATH, "consistency: LeftComposition1 || RightComposition1").err()
         {
             assert_eq!(
                 left.actions
@@ -47,7 +45,7 @@ mod test {
     #[test]
     fn compostion2_fails_correctly() {
         let actual =
-            json_run_query(PATH, "consistency: LeftComposition2 || RightComposition2").unwrap_err();
+            run_query(PATH, "consistency: LeftComposition2 || RightComposition2").unwrap_err();
         assert!(matches!(
             actual,
             ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
@@ -63,7 +61,7 @@ mod test {
         if let Some(ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
             ActionFailure::NotDisjoint(left, right),
             _,
-        ))) = json_run_query(PATH, "consistency: LeftComposition2 || RightComposition2").err()
+        ))) = run_query(PATH, "consistency: LeftComposition2 || RightComposition2").err()
         {
             assert_eq!(
                 left.actions
@@ -80,7 +78,7 @@ mod test {
     #[test]
     fn compostion3_fails_correctly() {
         let actual =
-            json_run_query(PATH, "consistency: LeftComposition3 || RightComposition3").unwrap_err();
+            run_query(PATH, "consistency: LeftComposition3 || RightComposition3").unwrap_err();
         assert!(matches!(
             actual,
             ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
@@ -96,7 +94,7 @@ mod test {
         if let Some(ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
             ActionFailure::NotDisjoint(left, right),
             _,
-        ))) = json_run_query(PATH, "consistency: LeftComposition3 || RightComposition3").err()
+        ))) = run_query(PATH, "consistency: LeftComposition3 || RightComposition3").err()
         {
             assert_eq!(
                 left.actions

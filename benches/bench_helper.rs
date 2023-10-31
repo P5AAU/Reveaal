@@ -1,10 +1,10 @@
 use reveaal::tests::TEST_SETTINGS;
-use reveaal::{ComponentLoader, JsonProjectLoader};
+use reveaal::{ComponentLoader, ProjectLoader};
 
 const UNI_PATH: &str = "samples/json/EcdarUniversity";
 
-pub fn get_uni_loader() -> Box<dyn ComponentLoader + 'static> {
-    let mut loader = JsonProjectLoader::new_loader(UNI_PATH, TEST_SETTINGS).to_comp_loader();
+pub fn get_uni_loader() -> ProjectLoader {
+    let mut loader = ProjectLoader::new(UNI_PATH, TEST_SETTINGS);
     let _ = loader.get_component("Adm2");
     let _ = loader.get_component("Administration");
     let _ = loader.get_component("HalfAdm1");

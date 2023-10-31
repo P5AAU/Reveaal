@@ -8,15 +8,14 @@ mod test {
         system::query_failures::{
             ActionFailure, ConsistencyFailure, DeterminismFailure, SystemRecipeFailure,
         },
-        tests::refinement::helper::json_run_query,
+        tests::refinement::helper::run_query,
     };
 
     const PATH: &str = "samples/json/SystemRecipe/Quotient";
 
     #[test]
     fn quotient1_fails_correctly() {
-        let actual =
-            json_run_query(PATH, "consistency: LeftQuotient1 // RightQuotient1").unwrap_err();
+        let actual = run_query(PATH, "consistency: LeftQuotient1 // RightQuotient1").unwrap_err();
         assert!(matches!(
             actual,
             ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
@@ -32,7 +31,7 @@ mod test {
         if let Some(ExecutableQueryError::SystemRecipeFailure(SystemRecipeFailure::Action(
             ActionFailure::NotDisjoint(left, right),
             _,
-        ))) = json_run_query(PATH, "consistency: LeftQuotient1 // RightQuotient1").err()
+        ))) = run_query(PATH, "consistency: LeftQuotient1 // RightQuotient1").err()
         {
             assert_eq!(
                 left.actions
@@ -48,7 +47,7 @@ mod test {
 
     #[test]
     fn left_quotient_fails_correctly() {
-        let actual = json_run_query(
+        let actual = run_query(
             PATH,
             "consistency: NotDeterministicQuotientComp // DeterministicQuotientComp",
         )
@@ -65,7 +64,7 @@ mod test {
 
     #[test]
     fn right_quotient_fails_correctly() {
-        let actual = json_run_query(
+        let actual = run_query(
             PATH,
             "consistency: DeterministicQuotientComp // NotDeterministicQuotientComp",
         )

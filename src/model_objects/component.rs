@@ -10,6 +10,7 @@ use log::info;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 /// The basic struct used to represent components read from either Json or xml
 #[derive(Debug, Deserialize, Serialize, Clone, Eq, PartialEq)]
@@ -34,9 +35,9 @@ impl DeclarationProvider for Component {
 }
 
 impl Component {
-    pub fn set_clock_indices(&mut self, indices: &mut ClockIndex) {
-        self.declarations.set_clock_indices(*indices);
-        *indices += self.declarations.get_clock_count();
+    pub fn set_clock_indices(&mut self, indices: &AtomicUsize) {
+        let indices = indices.fetch_add(self.declarations.get_clock_count(), Ordering::SeqCst);
+        self.declarations.set_clock_indices(indices);
     }
 
     pub fn get_location_by_name(&self, name: &str) -> &Location {
