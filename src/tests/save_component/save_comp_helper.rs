@@ -1,5 +1,7 @@
 #[cfg(test)]
 pub mod util {
+    use std::sync::*;
+
     use crate::data_reader::component_loader::JsonProjectLoader;
     use crate::data_reader::parse_queries;
     use crate::model_objects::expressions::QueryExpression;
@@ -23,17 +25,18 @@ pub mod util {
 
         let mut dim: ClockIndex = 0;
         let (base_system, new_system) = if let QueryExpression::GetComponent(expr) = &query {
-            let mut comp_loader = project_loader.to_comp_loader();
+            let mut binding = project_loader.to_comp_loader();
+            let comp_loader = Arc::new(Mutex::new(&mut (*binding)));
             (
                 extract_system_rep::get_system_recipe(
                     &expr.system,
-                    &mut *comp_loader,
+                    comp_loader,
                     &mut dim,
                     &mut None,
                 ),
                 extract_system_rep::get_system_recipe(
                     &expr.system,
-                    &mut *comp_loader,
+                    comp_loader,
                     &mut dim,
                     &mut None,
                 ),

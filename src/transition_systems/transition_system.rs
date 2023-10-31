@@ -15,6 +15,7 @@ use std::collections::hash_map::Entry;
 use std::collections::vec_deque::VecDeque;
 use std::collections::{hash_set::HashSet, HashMap};
 use std::hash::Hash;
+use std::sync::*;
 
 pub type TransitionSystemPtr = Box<dyn TransitionSystem>;
 pub type Action = String;
@@ -246,13 +247,13 @@ pub fn components_to_transition_system(
     components: Vec<Component>,
     composition: &str,
 ) -> TransitionSystemPtr {
-    let mut component_container = ComponentContainer::from(components);
-    component_loader_to_transition_system(&mut component_container, composition)
+    let mut component_container = &mut ComponentContainer::from(components);
+    component_loader_to_transition_system(Arc::new(Mutex::new(component_container)), composition)
 }
 
 /// Returns a [`TransitionSystemPtr`] equivalent to a `composition` of some components in a [`ComponentLoader`].
 pub fn component_loader_to_transition_system(
-    loader: &mut dyn ComponentLoader,
+    loader: Arc<Mutex<&mut (dyn ComponentLoader + 'static)>>,
     composition: &str,
 ) -> TransitionSystemPtr {
     let mut dimension = 0;

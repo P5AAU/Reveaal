@@ -1,4 +1,7 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+};
 
 use log::trace;
 
@@ -10,6 +13,7 @@ use crate::{
     transition_systems::{
         transition_system::component_loader_to_transition_system, TransitionSystemPtr,
     },
+    ComponentLoader,
 };
 
 pub fn get_or_insert_model(
@@ -17,9 +21,9 @@ pub fn get_or_insert_model(
     user_id: i32,
     components_hash: u32,
     proto_components: &[ProtoComponent],
-) -> ComponentContainer {
+) -> Box<dyn ComponentLoader + 'static> {
     match model_cache.get_model(user_id, components_hash) {
-        Some(model) => model,
+        Some(model) => Box::new(model),
         None => {
             let parsed_components: Vec<Component> = proto_components
                 .iter()
@@ -27,7 +31,7 @@ pub fn get_or_insert_model(
                 .flatten()
                 .collect::<Vec<Component>>();
             let components = constrtuct_componentsmap(parsed_components);
-            model_cache.insert_model(user_id, components_hash, Arc::new(components))
+            Box::new(model_cache.insert_model(user_id, components_hash, Arc::new(components)))
         }
     }
 }
@@ -75,8 +79,9 @@ pub fn simulation_info_to_transition_system(
     let info = simulation_info.components_info.as_ref().unwrap();
     let user_id = simulation_info.user_id;
 
-    let mut component_container =
+    let mut binding =
         get_or_insert_model(model_cache, user_id, info.components_hash, &info.components);
+    let component_container = Arc::new(Mutex::new(&mut (*binding)));
 
-    component_loader_to_transition_system(&mut component_container, &composition)
+    component_loader_to_transition_system(component_container, &composition)
 }

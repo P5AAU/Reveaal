@@ -1,3 +1,5 @@
+use std::sync::*;
+
 use crate::data_reader::component_loader::ComponentLoader;
 use crate::model_objects::State;
 use crate::system::reachability;
@@ -102,7 +104,7 @@ impl ExecutableQuery for ReachabilityExecutor {
 pub struct GetComponentExecutor<'a> {
     pub system: TransitionSystemPtr,
     pub comp_name: String,
-    pub component_loader: &'a mut dyn ComponentLoader,
+    pub component_loader: Arc<Mutex<&'a mut (dyn ComponentLoader)>>,
 }
 
 impl<'a> ExecutableQuery for GetComponentExecutor<'a> {
@@ -112,7 +114,10 @@ impl<'a> ExecutableQuery for GetComponentExecutor<'a> {
 
         comp.remake_edge_ids();
 
-        self.component_loader.save_component(comp.clone());
+        self.component_loader
+            .lock()
+            .unwrap()
+            .save_component(comp.clone());
 
         QueryResult::GetComponent(comp)
     }

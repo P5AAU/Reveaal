@@ -1,3 +1,5 @@
+use std::sync::*;
+
 use crate::data_reader::component_loader::{JsonProjectLoader, XmlProjectLoader};
 use crate::data_reader::parse_queries;
 use crate::extract_system_rep::ExecutableQueryError;
@@ -71,6 +73,7 @@ pub fn json_run_query(path: &str, query: &str) -> Result<QueryResult, Executable
 pub fn json_get_system(path: &str, comp: &str) -> TransitionSystemPtr {
     let project_loader =
         JsonProjectLoader::new_loader(String::from(path), crate::tests::TEST_SETTINGS);
-    let mut loader = project_loader.to_comp_loader();
-    component_loader_to_transition_system(&mut *loader, comp)
+    let mut binding = project_loader.to_comp_loader();
+    let loader = Arc::new(Mutex::new(&mut (*binding)));
+    component_loader_to_transition_system(loader, comp)
 }

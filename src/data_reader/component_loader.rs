@@ -107,7 +107,7 @@ impl ModelCache {
     }
 }
 
-pub trait ComponentLoader {
+pub trait ComponentLoader: Send {
     fn get_component(&mut self, component_name: &str) -> &Component;
     fn save_component(&mut self, component: Component);
     fn get_settings(&self) -> &Settings;

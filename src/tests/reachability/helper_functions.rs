@@ -1,4 +1,6 @@
 pub mod reachability_test_helper_functions {
+    use std::sync::*;
+
     use edbm::util::constraints::ClockIndex;
 
     use crate::extract_system_rep::get_system_recipe;
@@ -27,9 +29,10 @@ pub mod reachability_test_helper_functions {
             JsonProjectLoader::new_loader(folder_path, crate::tests::TEST_SETTINGS)
         }
         .to_comp_loader();
+        let comp_loader_mut = Arc::new(Mutex::new(&mut (*comp_loader)));
         let mut dim: ClockIndex = 0;
         let mut quotient_index = None;
-        let machine = get_system_recipe(&model, &mut (*comp_loader), &mut dim, &mut quotient_index);
+        let machine = get_system_recipe(&model, comp_loader_mut, &mut dim, &mut quotient_index);
         //TODO:: - unwrap might not be the best way to handle this
         let system = machine.clone().compile(dim).unwrap();
         (machine, system)
