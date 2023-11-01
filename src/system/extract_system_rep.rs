@@ -94,10 +94,13 @@ pub fn create_executable_query(
                 }
 
                 let mut component_index = 0;
+                let dim_before = dim.load(Ordering::SeqCst);
 
                 Ok(Box::new(RefinementExecutor {
-                    sys1: left.compile_with_index(&dim, &mut component_index)?,
-                    sys2: right.compile_with_index(&dim, &mut component_index)?,
+                    sys1: left
+                        .compile_with_index(&AtomicUsize::new(dim_before), &mut component_index)?,
+                    sys2: right
+                        .compile_with_index(&AtomicUsize::new(dim_before), &mut component_index)?,
                 }))
             }
             QueryExpression::Reachability { system, from, to } => {
@@ -254,7 +257,7 @@ pub fn create_executable_query(
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum SystemRecipe {
     Composition(Box<SystemRecipe>, Box<SystemRecipe>),
     Conjunction(Box<SystemRecipe>, Box<SystemRecipe>),
@@ -277,7 +280,7 @@ impl SystemRecipe {
         dim: &AtomicUsize,
         component_index: &mut u32,
     ) -> Result<TransitionSystemPtr, Box<SystemRecipeFailure>> {
-        let dim = dim.fetch_add(1, Ordering::SeqCst) + 1; // FIXME: Check if we should plus one here
+        let dim = dim.fetch_add(1, Ordering::SeqCst); // FIXME: Check if we should plus one here
         self._compile(dim, component_index)
     }
 
@@ -486,6 +489,8 @@ pub fn get_system_recipe(
 
 /// Module containing a "safer" function for clock reduction, along with some helper functions
 pub(crate) mod clock_reduction {
+    use std::ops::Deref;
+
     use super::*;
 
     /// Function for a "safer" clock reduction that handles both the dimension of the DBM and the quotient index if needed be
@@ -502,16 +507,20 @@ pub(crate) mod clock_reduction {
         dim: &AtomicUsize,
         quotient_clock: Option<ClockIndex>,
     ) -> Result<(), Box<SystemRecipeFailure>> {
-        if dim.load(Ordering::SeqCst) == 0 {
+        let dim_before = dim.load(Ordering::SeqCst);
+        if dim_before == 0 {
+            eprintln!("dim was zero");
             return Ok(());
         } else if rhs.is_none() {
+            eprintln!("rhs was none");
             return clock_reduce_single(lhs, dim, quotient_clock);
         }
+        eprintln!("dim is {}", dim.load(Ordering::SeqCst));
         let rhs = rhs.unwrap();
 
         let (l_clocks, r_clocks) = filter_redundant_clocks(
-            lhs.clone().compile(dim)?.find_redundant_clocks(),
-            rhs.clone().compile(dim)?.find_redundant_clocks(),
+            lhs.clone().compile(&dim)?.find_redundant_clocks(),
+            rhs.clone().compile(&dim)?.find_redundant_clocks(),
             quotient_clock,
             lhs.get_components_mut()
                 .iter()
@@ -520,7 +529,7 @@ pub(crate) mod clock_reduction {
                 .unwrap_or_default(),
         );
 
-        debug!("Clocks to be reduced: {l_clocks:?} + {l_clocks:?}");
+        eprintln!("Clocks to be reduced: {l_clocks:?} + {r_clocks:?}");
 
         let removed_clock_count = l_clocks
             .iter()
@@ -528,8 +537,11 @@ pub(crate) mod clock_reduction {
             .map(|c| c.clocks_removed_count())
             .sum();
 
+        eprintln!("removed_clock_count: {removed_clock_count}");
+
+        eprintln!("{} - {}", dim.load(Ordering::SeqCst), removed_clock_count);
         let new_dim = dim.fetch_sub(removed_clock_count, Ordering::SeqCst) - removed_clock_count;
-        debug!("New dimension: {new_dim}");
+        eprintln!("New dimension: {new_dim}");
 
         rhs.reduce_clocks(r_clocks);
         lhs.reduce_clocks(l_clocks);
@@ -556,13 +568,15 @@ pub(crate) mod clock_reduction {
         quotient_clock: Option<ClockIndex>,
     ) -> Result<(), Box<SystemRecipeFailure>> {
         let mut clocks = sys.clone().compile(dim)?.find_redundant_clocks();
+        eprintln!(
+            "dim is {} in clock_reduce_single",
+            dim.load(Ordering::SeqCst)
+        );
         clocks.retain(|ins| ins.get_clock_index() != quotient_clock.unwrap_or_default());
-        debug!("Clocks to be reduced: {clocks:?}");
-        let removed_clock_count = clocks
-            .iter()
-            .fold(0, |acc, c| acc + c.clocks_removed_count());
+        eprintln!("Clocks to be reduced: {clocks:?}");
+        let removed_clock_count = clocks.iter().map(|c| c.clocks_removed_count()).sum();
         let new_dim = dim.fetch_sub(removed_clock_count, Ordering::SeqCst) - removed_clock_count;
-        debug!("New dimension: {new_dim}");
+        eprintln!("New dimension: {new_dim}");
         sys.reduce_clocks(clocks);
         compress_component_decls(sys.get_components_mut(), None);
         if quotient_clock.is_some() {
@@ -631,7 +645,7 @@ pub(crate) mod clock_reduction {
             } else {
                 seen.insert(*clock, index);
                 *clock = index;
-                index += 1;
+                // index += 1;
             }
         }
     }

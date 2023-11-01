@@ -108,7 +108,7 @@ pub struct GetComponentExecutor {
     pub component_loader: Arc<Mutex<dyn ComponentLoader>>,
 }
 
-impl<'a> ExecutableQuery for GetComponentExecutor {
+impl ExecutableQuery for GetComponentExecutor {
     fn execute(self: Box<Self>) -> QueryResult {
         let mut comp = combine_components(&self.system, PruningStrategy::Reachable);
         comp.name = self.comp_name;

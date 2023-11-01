@@ -213,12 +213,16 @@ impl ProjectLoader {
         &self.queries
     }
 
-    fn get_project_path(&self) -> &PathBuf {
-        &self.project_path
+    fn is_xml_project<P: AsRef<Path>>(project_path: P) -> bool {
+        project_path.as_ref().ends_with(".xml")
+            || !project_path
+                .as_ref()
+                .join("SystemDeclarations.json")
+                .exists()
     }
 
     pub fn new<P: AsRef<Path>>(project_path: P, settings: Settings) -> ProjectLoader {
-        if project_path.as_ref().ends_with(".xml") {
+        if Self::is_xml_project(&project_path) {
             let (comps, system_declarations, queries) = parse_xml_from_file(&project_path);
             let mut map = HashMap::<String, Component>::new();
             for mut component in comps {

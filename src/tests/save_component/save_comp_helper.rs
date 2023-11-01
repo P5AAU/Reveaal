@@ -14,7 +14,7 @@ pub mod util {
     use crate::system::save_component::PruningStrategy;
     use crate::ProjectLoader;
 
-    pub fn json_reconstructed_component_refines_base_self(input_path: &str, system: &str) {
+    pub fn reconstructed_component_refines_base_self(input_path: &str, system: &str) {
         let project_loader = Arc::new(Mutex::new(ProjectLoader::new(
             String::from(input_path),
             crate::tests::TEST_SETTINGS,

@@ -75,7 +75,7 @@ pub mod test {
         let mut project_loader =
             ProjectLoader::new(path.to_string_lossy().to_string(), DEFAULT_SETTINGS);
 
-        let mut next_clock_index: AtomicUsize = AtomicUsize::new(0);
+        let next_clock_index: AtomicUsize = AtomicUsize::new(0);
         let mut component1 = project_loader.get_component(comp1).clone();
         let mut component2 = project_loader.get_component(comp2).clone();
 
@@ -100,7 +100,7 @@ pub mod test {
         let mut project_loader =
             ProjectLoader::new(path.to_string_lossy().to_string(), DEFAULT_SETTINGS);
 
-        let mut next_clock_index = AtomicUsize::new(0);
+        let next_clock_index = AtomicUsize::new(0);
         let mut component1 = project_loader.get_component(comp1).clone();
         let mut component2 = project_loader.get_component(comp2).clone();
 

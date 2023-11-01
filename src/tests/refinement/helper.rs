@@ -27,7 +27,7 @@ pub fn refinement_check(path: &str, query: &str) -> bool {
 }
 
 pub fn run_query(path: &str, query: &str) -> Result<QueryResult, ExecutableQueryError> {
-    let mut project_loader = Arc::new(Mutex::new(ProjectLoader::new(
+    let project_loader = Arc::new(Mutex::new(ProjectLoader::new(
         String::from(path),
         crate::tests::TEST_SETTINGS,
     )));

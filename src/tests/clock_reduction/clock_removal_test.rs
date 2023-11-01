@@ -87,15 +87,20 @@ pub mod clock_removal_tests {
 
         let comp = read_json_component(PATH, "A");
 
-        let dim = comp.declarations.clocks.len();
+        let dim = AtomicUsize::new(comp.declarations.clocks.len());
         assert_eq!(
-            dim, 4,
+            dim.load(Ordering::SeqCst),
+            4,
             "As of writing these tests, this component has 4 unused clocks"
         );
 
         let recipe = SystemRecipe::Component(Box::from(comp));
-        clock_reduction::clock_reduce(&mut Box::from(recipe), None, &dim.into(), None).unwrap();
-        assert_eq!(dim, 0, "After removing the clocks, the dim should be 0");
+        clock_reduction::clock_reduce(&mut Box::from(recipe), None, &dim, None).unwrap();
+        assert_eq!(
+            dim.load(Ordering::SeqCst),
+            0,
+            "After removing the clocks, the dim should be 0"
+        );
 
         assert!(
             run_query(PATH, "consistency: A").is_ok(),
@@ -131,10 +136,10 @@ pub mod clock_removal_tests {
             0,
             "After removing the clocks, the dim should be 0"
         );
-
         assert!(
             run_query(PATH, "refinement: A <= A").is_ok(),
             "A should refine itself"
         );
+        assert!(false);
     }
 }
