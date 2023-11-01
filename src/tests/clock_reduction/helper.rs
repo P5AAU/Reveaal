@@ -64,14 +64,14 @@ pub mod test {
         comp2: &str,
     ) -> TransitionSystemPtr {
         let (dim, system_recipe) = get_conjunction_system_recipe(path, comp1, comp2);
-        system_recipe.compile(&dim).unwrap()
+        system_recipe.compile(dim).unwrap()
     }
 
     pub(crate) fn get_conjunction_system_recipe(
         path: &Path,
         comp1: &str,
         comp2: &str,
-    ) -> (AtomicUsize, SystemRecipe) {
+    ) -> (ClockIndex, SystemRecipe) {
         let mut project_loader =
             ProjectLoader::new(path.to_string_lossy().to_string(), DEFAULT_SETTINGS);
 
@@ -89,7 +89,7 @@ pub mod test {
         let sr_component2 = Box::new(SystemRecipe::Component(Box::new(component2)));
 
         let conjunction = SystemRecipe::Conjunction(sr_component1, sr_component2);
-        (dimensions.into(), conjunction)
+        (dimensions, conjunction)
     }
 
     pub(crate) fn get_composition_transition_system(
@@ -115,7 +115,7 @@ pub mod test {
 
         let conjunction = SystemRecipe::Composition(sr_component1, sr_component2);
 
-        conjunction.compile(&dimensions.into()).unwrap()
+        conjunction.compile(dimensions).unwrap()
     }
 
     pub(crate) fn create_clock_name_to_index(

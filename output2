@@ -1,0 +1,36 @@
+dim is 8
+A E4 L2 9
+A E4 L2 9
+A E4 L2 9
+A E4 L2 9
+A E4 L2 9
+A E4 L2 9
+Clocks to be reduced: [RemoveClock { clock_index: 2 }, RemoveClock { clock_index: 1 }, RemoveClock { clock_index: 4 }, RemoveClock { clock_index: 3 }] + [RemoveClock { clock_index: 5 }, RemoveClock { clock_index: 7 }, RemoveClock { clock_index: 8 }, RemoveClock { clock_index: 6 }]
+New dimension: 0
+dav
+dim is 8
+A E4 L2 9
+A E4 L2 9
+A E4 L2 9
+A E4 L2 9
+A E4 L2 9
+A E4 L2 9
+Clocks to be reduced: [RemoveClock { clock_index: 4 }, RemoveClock { clock_index: 1 }, RemoveClock { clock_index: 3 }, RemoveClock { clock_index: 2 }] + [RemoveClock { clock_index: 6 }, RemoveClock { clock_index: 5 }, RemoveClock { clock_index: 8 }, RemoveClock { clock_index: 7 }]
+New dimension: 0
+A E4 L2 1
+A E4 L2 1
+A E4 L2 1
+A E4 L2 1
+A E4 L2 1
+A E4 L2 1
+Dimension: 1
+thread 'tests::ClockReduction::clock_removal_test::clock_removal_tests::test_no_used_clock_multi' panicked at 'assertion failed: false', src/tests/ClockReduction/clock_removal_test.rs:134:9
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::ClockReduction::clock_removal_test::clock_removal_tests::test_no_used_clock_multi
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 590 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--lib`

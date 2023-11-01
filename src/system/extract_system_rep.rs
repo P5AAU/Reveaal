@@ -97,16 +97,15 @@ pub fn create_executable_query(
                 let dim_before = dim.load(Ordering::SeqCst);
 
                 Ok(Box::new(RefinementExecutor {
-                    sys1: left
-                        .compile_with_index(&AtomicUsize::new(dim_before), &mut component_index)?,
-                    sys2: right
-                        .compile_with_index(&AtomicUsize::new(dim_before), &mut component_index)?,
+                    sys1: left.compile_with_index(dim_before, &mut component_index)?,
+                    sys2: right.compile_with_index(dim_before, &mut component_index)?,
                 }))
             }
             QueryExpression::Reachability { system, from, to } => {
                 let machine =
                     get_system_recipe(system, component_loader, &dim, Arc::new(Mutex::new(None)));
-                let transition_system = machine.clone().compile(&dim)?;
+                let dim_before = dim.load(Ordering::SeqCst);
+                let transition_system = machine.clone().compile(dim_before)?;
 
                 // Assign the start state to the initial state of the transition system if no start state is given by the query
                 let start_state: State = if let Some(state) = from.as_ref() {
@@ -156,8 +155,10 @@ pub fn create_executable_query(
                     )?;
                 }
 
+                let dim_before = dim.load(Ordering::SeqCst);
+
                 Ok(Box::new(ConsistencyExecutor {
-                    system: recipe.compile(&dim)?,
+                    system: recipe.compile(dim_before)?,
                 }))
             }
             QueryExpression::Determinism(query_expression) => {
@@ -183,8 +184,10 @@ pub fn create_executable_query(
                     )?;
                 }
 
+                let dim_before = dim.load(Ordering::SeqCst);
+
                 Ok(Box::new(DeterminismExecutor {
-                    system: recipe.compile(&dim)?,
+                    system: recipe.compile(dim_before)?,
                 }))
             }
             QueryExpression::GetComponent(SaveExpression { system, name }) => {
@@ -210,8 +213,10 @@ pub fn create_executable_query(
                     )?;
                 }
 
+                let dim_before = dim.load(Ordering::SeqCst);
+
                 Ok(Box::new(GetComponentExecutor {
-                    system: recipe.compile(&dim)?,
+                    system: recipe.compile(dim_before)?,
                     comp_name: name.clone().unwrap_or("Unnamed".to_string()),
                     component_loader,
                 }))
@@ -239,9 +244,11 @@ pub fn create_executable_query(
                     )?;
                 }
 
+                let dim_before = dim.load(Ordering::SeqCst);
+
                 Ok(Box::new(GetComponentExecutor {
                     system: pruning::prune_system(
-                        recipe.compile(&dim)?,
+                        recipe.compile(dim_before)?,
                         dim.load(Ordering::SeqCst),
                     ),
                     comp_name: name.clone().unwrap_or("Unnamed".to_string()),
@@ -266,22 +273,17 @@ pub enum SystemRecipe {
 }
 
 impl SystemRecipe {
-    pub fn compile(
-        self,
-        dim: &AtomicUsize,
-    ) -> Result<TransitionSystemPtr, Box<SystemRecipeFailure>> {
+    pub fn compile(self, dim: ClockIndex) -> Result<TransitionSystemPtr, Box<SystemRecipeFailure>> {
         let mut component_index = 0;
-        let dim = dim.fetch_add(1, Ordering::SeqCst) + 1;
-        self._compile(dim, &mut component_index)
+        self._compile(dim + 1, &mut component_index)
     }
 
     pub fn compile_with_index(
         self,
-        dim: &AtomicUsize,
+        dim: ClockIndex,
         component_index: &mut u32,
     ) -> Result<TransitionSystemPtr, Box<SystemRecipeFailure>> {
-        let dim = dim.fetch_add(1, Ordering::SeqCst); // FIXME: Check if we should plus one here
-        self._compile(dim, component_index)
+        self._compile(dim + 1, component_index)
     }
 
     fn _compile(
@@ -518,9 +520,11 @@ pub(crate) mod clock_reduction {
         eprintln!("dim is {}", dim.load(Ordering::SeqCst));
         let rhs = rhs.unwrap();
 
+        let dim_before = dim.load(Ordering::SeqCst);
+
         let (l_clocks, r_clocks) = filter_redundant_clocks(
-            lhs.clone().compile(&dim)?.find_redundant_clocks(),
-            rhs.clone().compile(&dim)?.find_redundant_clocks(),
+            lhs.clone().compile(dim_before)?.find_redundant_clocks(),
+            rhs.clone().compile(dim_before)?.find_redundant_clocks(),
             quotient_clock,
             lhs.get_components_mut()
                 .iter()
@@ -567,7 +571,10 @@ pub(crate) mod clock_reduction {
         dim: &AtomicUsize,
         quotient_clock: Option<ClockIndex>,
     ) -> Result<(), Box<SystemRecipeFailure>> {
-        let mut clocks = sys.clone().compile(dim)?.find_redundant_clocks();
+        let mut clocks = sys
+            .clone()
+            .compile(dim.load(Ordering::SeqCst))?
+            .find_redundant_clocks();
         eprintln!(
             "dim is {} in clock_reduce_single",
             dim.load(Ordering::SeqCst)

@@ -15,7 +15,7 @@ use std::collections::hash_map::Entry;
 use std::collections::vec_deque::VecDeque;
 use std::collections::{hash_set::HashSet, HashMap};
 use std::hash::Hash;
-use std::sync::atomic::AtomicUsize;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
 pub type TransitionSystemPtr = Box<dyn TransitionSystem>;
@@ -260,7 +260,7 @@ pub fn component_loader_to_transition_system(
     let dimension = AtomicUsize::new(0);
     let sys_expr = parse_to_system_expr(composition).unwrap();
     get_system_recipe(&sys_expr, loader, &dimension, Arc::new(Mutex::new(None)))
-        .compile(&dimension)
+        .compile(dimension.load(Ordering::SeqCst))
         .unwrap()
 }
 
