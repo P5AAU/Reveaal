@@ -64,6 +64,7 @@ impl StatePair {
     }
 
     pub fn set_zone(&mut self, zone: OwnedFederation) {
+        eprintln!("ZONE: {:?}", &zone);
         self.zone_sentinel = Some(zone);
     }
 
@@ -73,6 +74,7 @@ impl StatePair {
         sys2: &TransitionSystemPtr,
     ) {
         let mut bounds = sys1.get_local_max_bounds(&self.locations1);
+        eprintln!("BOUNDS: {:?}", &bounds);
         bounds.add_bounds(&sys2.get_local_max_bounds(&self.locations2));
         let zone = self.take_zone().extrapolate_max_bounds(&bounds);
         self.set_zone(zone);

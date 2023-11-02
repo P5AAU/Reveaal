@@ -466,10 +466,8 @@ pub fn get_system_recipe(
             let q_index = match quotient_index {
                 Some(q_i) => *q_i,
                 None => {
-                    // let mut clock_index = clock_index.lock().unwrap();
-                    // *clock_index += 1;
-                    let clock_index = clock_index.fetch_add(1, Ordering::SeqCst); // FIXME: Might need to add one here
-                    debug!("Quotient clock index: {}", clock_index);
+                    let clock_index = clock_index.fetch_add(1, Ordering::SeqCst) + 1;
+                    eprintln!("Quotient clock index: {}", clock_index);
                     quotient_index.replace(clock_index);
 
                     clock_index
@@ -482,7 +480,7 @@ pub fn get_system_recipe(
             let mut component = component_loader.lock().unwrap().get_component(name).clone();
             component.set_clock_indices(clock_index);
             component.special_id = id.clone();
-            debug!("{} Clocks: {:?}", name, component.declarations.clocks);
+            eprintln!("{} Clocks: {:?}", name, component.declarations.clocks);
 
             Box::new(SystemRecipe::Component(Box::new(component)))
         }
@@ -601,6 +599,7 @@ pub(crate) mod clock_reduction {
         Vec<ClockReductionInstruction>,
         Vec<ClockReductionInstruction>,
     ) {
+        eprintln!("{lhs:?}, {rhs:?}, {quotient_clock:?}, {split_index}");
         fn get_unique_redundant_clocks<P: Fn(ClockIndex) -> bool>(
             l: Vec<ClockReductionInstruction>,
             r: Vec<ClockReductionInstruction>,

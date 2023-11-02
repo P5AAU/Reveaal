@@ -91,7 +91,7 @@ impl<'a> RefinementContext<'a> {
 pub fn check_refinement(sys1: TransitionSystemPtr, sys2: TransitionSystemPtr) -> RefinementResult {
     let mut context = RefinementContext::new(&sys1, &sys2);
     let dimensions = sys1.get_dim();
-    debug!("Dimensions: {}", dimensions);
+    eprintln!("Dimensions: {}", dimensions);
 
     //Firstly we check the preconditions
     check_preconditions(&sys1, &sys2)?;
@@ -100,13 +100,13 @@ pub fn check_refinement(sys1: TransitionSystemPtr, sys2: TransitionSystemPtr) ->
     let inputs = common_actions(&sys1, &sys2, true);
     let outputs = common_actions(&sys1, &sys2, false);
 
-    info!(
+    eprintln!(
         "Left inputs: {:?}, Left outputs: {:?}",
         sys1.get_input_actions(),
         sys1.get_output_actions()
     );
 
-    info!(
+    eprintln!(
         "Right inputs: {:?}, Right outputs; {:?}",
         sys2.get_input_actions(),
         sys2.get_output_actions()
@@ -119,8 +119,8 @@ pub fn check_refinement(sys1: TransitionSystemPtr, sys2: TransitionSystemPtr) ->
     let initial_locations_1 = sys1.get_initial_location();
     let initial_locations_2 = sys2.get_initial_location();
 
-    debug!("Extra inputs {:?}", extra_inputs);
-    debug!("Extra outputs {:?}", extra_outputs);
+    eprintln!("Extra inputs {:?}", extra_inputs);
+    eprintln!("Extra outputs {:?}", extra_outputs);
 
     if initial_locations_1.is_none() {
         if initial_locations_2.is_none() {
@@ -149,7 +149,7 @@ pub fn check_refinement(sys1: TransitionSystemPtr, sys2: TransitionSystemPtr) ->
     }
     initial_pair.extrapolate_max_bounds(context.sys1, context.sys2);
 
-    debug!("Initial {}", initial_pair);
+    eprintln!("Initial {}", initial_pair);
     context.waiting_list.put(initial_pair);
 
     while !context.waiting_list.is_empty() {
@@ -204,9 +204,9 @@ pub fn check_refinement(sys1: TransitionSystemPtr, sys2: TransitionSystemPtr) ->
             .check(&sys1, &sys2, input, &curr_pair)?;
         }
     }
-    info!("Refinement check passed");
+    eprintln!("Refinement check passed");
     if log_enabled!(Level::Debug) {
-        debug!("With relation:");
+        eprintln!("With relation:");
         print_relation(&context.passed_list);
     }
 
@@ -221,7 +221,7 @@ fn print_relation(passed_list: &PassedStateList) {
     for (id1, id2) in sorted_keys {
         let zones = passed_list.zones(&(id1.clone(), id2.clone()));
 
-        debug!(
+        eprintln!(
             "{}",
             if zones.len() != 1 {
                 format!("1:{} 2:{} {} zones", id1, id2, zones.len())
@@ -400,7 +400,7 @@ fn build_state_pair(
     new_sp.extrapolate_max_bounds(context.sys1, context.sys2);
 
     if !context.passed_list.has(&new_sp) && !context.waiting_list.has(&new_sp) {
-        debug!("New state {}", new_sp);
+        eprintln!("New state {}", new_sp);
 
         context.waiting_list.put(new_sp);
     }

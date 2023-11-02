@@ -17,8 +17,10 @@ fn try_setup_logging() {
 
 pub fn refinement_check(path: &str, query: &str) -> bool {
     try_setup_logging();
+    let result = run_query(path, query);
+    eprintln!("{result:?}");
 
-    match run_query(path, query).unwrap() {
+    match result.unwrap() {
         QueryResult::Refinement(Ok(())) => true,
         QueryResult::Refinement(Err(_)) => false,
         QueryResult::CustomError(err) => panic!("{}", err),
@@ -40,7 +42,6 @@ pub fn run_query(path: &str, query: &str) -> Result<QueryResult, ExecutableQuery
     };
 
     let query = create_executable_query(&q, project_loader)?;
-
     Ok(query.execute())
 }
 

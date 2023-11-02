@@ -1,250 +1,13 @@
 
-running 594 tests
-test tests::clock_reduction::clock_removal_test::clock_removal_tests::test_no_used_clock_multi ... FAILED
-test tests::grpc::simulation::tests::start_simulation_then_take_simulation_step::_machine_spec_researcher_samples_json_ecdaruniversity_spec_machine_researcher_expects ... FAILED
+running 1 test
 test tests::refinement::refinement_delay_add::test::a1_a2_not_refines_b ... FAILED
-test tests::refinement::refinement_university::test::test_adm_2_researcher_not_refines_spec ... FAILED
-test tests::refinement::refinement_university::test::test_admin_researcher_refines_spec ... FAILED
-test tests::refinement::refinement_university::test::test_machine_adm_2_not_refines_spec ... FAILED
-test tests::refinement::refinement_university::test::test_machine_admin_refines_spec ... FAILED
-test tests::refinement::refinement_university::test::test_researcher_machine_refines_spec ... FAILED
-test tests::refinement::refinement_university::test::test_adm_2_not_refines_spec ... FAILED
-test tests::refinement::refinement_university::test::test_researcher_machine_not_refines_adm_2_spec ... FAILED
-test tests::refinement::refinement_university::test::test_admin_refines_spec ... FAILED
-test tests::refinement::refinement_university::test::test_researcher_refines_spec ... FAILED
-test tests::refinement::xml::consistency_tests::test::test_g10 ... FAILED
-test tests::refinement::xml::consistency_tests::test::test_g12 ... FAILED
-test tests::refinement::xml::consistency_tests::test::test_g11 ... FAILED
-test tests::refinement::xml::consistency_tests::test::test_g14 ... FAILED
-test tests::refinement::xml::consistency_tests::test::test_g19 ... FAILED
-test tests::refinement::xml::consistency_tests::test::test_g16 ... FAILED
-test tests::refinement::refinement_university::test::test_researcher_not_refines_adm_2_spec ... FAILED
-test tests::refinement::xml::consistency_tests::test::test_g4 ... FAILED
-test tests::refinement::xml::consistency_tests::test::test_g3 ... FAILED
-test tests::refinement::xml::consistency_tests::test::test_g5 ... FAILED
-test tests::refinement::xml::consistency_tests::test::test_g7 ... FAILED
-test tests::refinement::refinement_university::test::test_machine_refines_spec ... FAILED
-test tests::refinement::xml::consistency_tests::test::test_g9 ... FAILED
-test tests::refinement::xml::delay_refinement::test::k1_not_refines_k2 ... FAILED
-test tests::refinement::xml::delay_refinement::test::k3_not_refines_k4 ... FAILED
-test tests::refinement::refinement_university::test::test_machine_not_refines_adm_2_spec ... FAILED
 
 failures:
-
----- tests::clock_reduction::clock_removal_test::clock_removal_tests::test_no_used_clock_multi stdout ----
-dim is 8
-A E4 L2 9
-A E4 L2 9
-A E4 L2 9
-A E4 L2 9
-A E4 L2 9
-A E4 L2 9
-Clocks to be reduced: [RemoveClock { clock_index: 4 }, RemoveClock { clock_index: 1 }, RemoveClock { clock_index: 3 }, RemoveClock { clock_index: 2 }] + [RemoveClock { clock_index: 7 }, RemoveClock { clock_index: 8 }, RemoveClock { clock_index: 5 }, RemoveClock { clock_index: 6 }]
-removed_clock_count: 8
-8 - 8
-New dimension: 0
-dim is 8
-A E4 L2 9
-A E4 L2 9
-A E4 L2 9
-A E4 L2 9
-A E4 L2 9
-A E4 L2 9
-Clocks to be reduced: [RemoveClock { clock_index: 2 }, RemoveClock { clock_index: 1 }, RemoveClock { clock_index: 3 }, RemoveClock { clock_index: 4 }] + [RemoveClock { clock_index: 7 }, RemoveClock { clock_index: 5 }, RemoveClock { clock_index: 8 }, RemoveClock { clock_index: 6 }]
-removed_clock_count: 8
-8 - 8
-New dimension: 0
-A E4 L2 1
-A E4 L2 1
-A E4 L2 1
-A E4 L2 1
-A E4 L2 1
-A E4 L2 1
-thread 'tests::clock_reduction::clock_removal_test::clock_removal_tests::test_no_used_clock_multi' panicked at src/tests/clock_reduction/clock_removal_test.rs:143:9:
-assertion failed: false
-
----- tests::grpc::simulation::tests::start_simulation_then_take_simulation_step::_machine_spec_researcher_samples_json_ecdaruniversity_spec_machine_researcher_expects stdout ----
-Spec E0 L17 5
-Spec E1 L16 5
-Spec E2 L18 5
-Spec E3 L18 5
-Spec E4 L17 5
-Spec E5 L18 5
-Machine E25 L5 5
-Machine E26 L5 5
-Machine E27 L4 5
-Machine E28 L4 5
-Machine E29 L5 5
-Researcher E6 L9 5
-Researcher E7 L9 5
-Researcher E8 L7 5
-Researcher E9 L7 5
-Researcher E10 L9 5
-Researcher E11 L7 5
-Researcher E12 L6 5
-Researcher E13 L6 5
-Researcher E14 U0 5
-Researcher E15 U0 5
-Researcher E16 U0 5
-Spec E0 L17 5
-Spec E1 L16 5
-Spec E2 L18 5
-Spec E3 L18 5
-Spec E4 L17 5
-Spec E5 L18 5
-Machine E25 L5 5
-Machine E26 L5 5
-Machine E27 L4 5
-Machine E28 L4 5
-Machine E29 L5 5
-Researcher E6 L9 5
-Researcher E7 L9 5
-Researcher E8 L7 5
-Researcher E9 L7 5
-Researcher E10 L9 5
-Researcher E11 L7 5
-Researcher E12 L6 5
-Researcher E13 L6 5
-Researcher E14 U0 5
-Researcher E15 U0 5
-Researcher E16 U0 5
-Spec E0 L17 5
-Spec E1 L16 5
-Spec E2 L18 5
-Spec E3 L18 5
-Spec E4 L17 5
-Spec E5 L18 5
-Machine E25 L5 5
-Machine E26 L5 5
-Machine E27 L4 5
-Machine E28 L4 5
-Machine E29 L5 5
-Researcher E6 L9 5
-Researcher E7 L9 5
-Researcher E8 L7 5
-Researcher E9 L7 5
-Researcher E10 L9 5
-Researcher E11 L7 5
-Researcher E12 L6 5
-Researcher E13 L6 5
-Researcher E14 U0 5
-Researcher E15 U0 5
-Researcher E16 U0 5
-Spec E0 L17 5
-Spec E1 L16 5
-Spec E2 L18 5
-Spec E3 L18 5
-Spec E4 L17 5
-Spec E5 L18 5
-Machine E25 L5 5
-Machine E26 L5 5
-Machine E27 L4 5
-Machine E28 L4 5
-Machine E29 L5 5
-Researcher E6 L9 5
-Researcher E7 L9 5
-Researcher E8 L7 5
-Researcher E9 L7 5
-Researcher E10 L9 5
-Researcher E11 L7 5
-Researcher E12 L6 5
-Researcher E13 L6 5
-Researcher E14 U0 5
-Researcher E15 U0 5
-Researcher E16 U0 5
-Spec E0 L17 5
-Spec E1 L16 5
-Spec E2 L18 5
-Spec E3 L18 5
-Spec E4 L17 5
-Spec E5 L18 5
-Machine E25 L5 5
-Machine E26 L5 5
-Machine E27 L4 5
-Machine E28 L4 5
-Machine E29 L5 5
-Researcher E6 L9 5
-Researcher E7 L9 5
-Researcher E8 L7 5
-Researcher E9 L7 5
-Researcher E10 L9 5
-Researcher E11 L7 5
-Researcher E12 L6 5
-Researcher E13 L6 5
-Researcher E14 U0 5
-Researcher E15 U0 5
-Researcher E16 U0 5
-Spec E0 L17 5
-Spec E1 L16 5
-Spec E2 L18 5
-Spec E3 L18 5
-Spec E4 L17 5
-Spec E5 L18 5
-Machine E25 L5 5
-Machine E26 L5 5
-Machine E27 L4 5
-Machine E28 L4 5
-Machine E29 L5 5
-Researcher E6 L9 5
-Researcher E7 L9 5
-Researcher E8 L7 5
-Researcher E9 L7 5
-Researcher E10 L9 5
-Researcher E11 L7 5
-Researcher E12 L6 5
-Researcher E13 L6 5
-Researcher E14 U0 5
-Researcher E15 U0 5
-Researcher E16 U0 5
-Spec E0 L17 5
-Spec E1 L16 5
-Spec E2 L18 5
-Spec E3 L18 5
-Spec E4 L17 5
-Spec E5 L18 5
-Machine E25 L5 5
-Machine E26 L5 5
-Machine E27 L4 5
-Machine E28 L4 5
-Machine E29 L5 5
-Researcher E6 L9 5
-Researcher E7 L9 5
-Researcher E8 L7 5
-Researcher E9 L7 5
-Researcher E10 L9 5
-Researcher E11 L7 5
-Researcher E12 L6 5
-Researcher E13 L6 5
-Researcher E14 U0 5
-Researcher E15 U0 5
-Researcher E16 U0 5
-Spec E0 L17 5
-Spec E1 L16 5
-Spec E2 L18 5
-Spec E3 L18 5
-Spec E4 L17 5
-Spec E5 L18 5
-Machine E25 L5 5
-Machine E26 L5 5
-Machine E27 L4 5
-Machine E28 L4 5
-Machine E29 L5 5
-Researcher E6 L9 5
-Researcher E7 L9 5
-Researcher E8 L7 5
-Researcher E9 L7 5
-Researcher E10 L9 5
-Researcher E11 L7 5
-Researcher E12 L6 5
-Researcher E13 L6 5
-Researcher E14 U0 5
-Researcher E15 U0 5
-Researcher E16 U0 5
-thread 'tests::grpc::simulation::tests::start_simulation_then_take_simulation_step::_machine_spec_researcher_samples_json_ecdaruniversity_spec_machine_researcher_expects' panicked at /home/sim/.cargo/git/checkouts/edbm-e05f29c8ab3ff060/3f7fe60/src/zones/dbm.rs:353:9:
-assertion failed: self[(i, j)] > constraint && constraint.as_negated() < self[(j, i)]
-thread 'tests::grpc::simulation::tests::start_simulation_then_take_simulation_step::_machine_spec_researcher_samples_json_ecdaruniversity_spec_machine_researcher_expects' panicked at src/tests/grpc/simulation.rs:79:17:
 
 ---- tests::refinement::refinement_delay_add::test::a1_a2_not_refines_b stdout ----
+A1 Clocks: {"x": 1}
+B Clocks: {"x": 2}
+A2 Clocks: {}
 dim is 2
 A1 E11 L1 3
 A1 E11 L2 3
@@ -257,6 +20,7 @@ A2 input_L6_a L6 3
 A2 input_L7_a L7 3
 A2 input_L7_b L7 3
 B E9 L8 3
+[RemoveClock { clock_index: 2 }], [RemoveClock { clock_index: 1 }], None, 1
 Clocks to be reduced: [] + []
 removed_clock_count: 0
 2 - 0
@@ -272,756 +36,100 @@ A2 input_L6_a L6 3
 A2 input_L7_a L7 3
 A2 input_L7_b L7 3
 B E9 L8 3
+Dimensions: 3
+Left inputs: {}, Left outputs: {"a", "b", "o"}
+Right inputs: {}, Right outputs; {"o"}
+Extra inputs {}
+Extra outputs {"a", "b"}
+ZONE: Federation{
+  DBM 1:
+    [ ≤0  ≤0  ≤0  ]
+    [ <∞  ≤0  ≤0  ]
+    [ <∞  ≤0  ≤0  ]
+}
+
+BOUNDS: Bounds { upper: [Some(0), Some(200), None], lower: [Some(0), Some(200), None] }
+ZONE: Federation{
+  DBM 1:
+    [ ≤0  ≤0  ≤0  ]
+    [ <∞  ≤0  <∞  ]
+    [ <∞  <∞  ≤0  ]
+}
+
+Initial Pair: 1:L0||L4 where no invariant, 2:L5 where no invariant, zone: true
+ZONE: Federation{
+  DBM 1:
+    [ ≤0  ≤0  ≤0  ]
+    [ <∞  ≤0  ≤0  ]
+    [ <∞  <∞  ≤0  ]
+}
+
+BOUNDS: Bounds { upper: [Some(0), Some(200), None], lower: [Some(0), Some(200), None] }
+ZONE: Federation{
+  DBM 1:
+    [ ≤0  ≤0  ≤0  ]
+    [ <∞  ≤0  <∞  ]
+    [ <∞  <∞  ≤0  ]
+}
+
+New state Pair: 1:L1||L6 where no invariant, 2:L5 where no invariant, zone: true
+ZONE: Federation{
+  DBM 1:
+    [ ≤0  ≤0  ≤0  ]
+    [ ≤0  ≤0  ≤0  ]
+    [ <∞  <∞  ≤0  ]
+}
+
+BOUNDS: Bounds { upper: [Some(0), Some(200), None], lower: [Some(0), Some(200), None] }
+ZONE: Federation{
+  DBM 1:
+    [ ≤0  ≤0  ≤0  ]
+    [ ≤0  ≤0  ≤0  ]
+    [ <∞  <∞  ≤0  ]
+}
+
+New state Pair: 1:L2||L7 where c:1≤0, 2:L5 where no invariant, zone: c:1≤0
+ZONE: Federation{
+  DBM 1:
+    [ ≤0  ≤0  ≤0  ]
+    [ <∞  ≤0  ≤0  ]
+    [ <∞  <∞  ≤0  ]
+}
+
+BOUNDS: Bounds { upper: [Some(0), Some(200), None], lower: [Some(0), Some(200), None] }
+ZONE: Federation{
+  DBM 1:
+    [ ≤0  ≤0  ≤0  ]
+    [ <∞  ≤0  <∞  ]
+    [ <∞  <∞  ≤0  ]
+}
+
+New state Pair: 1:L9||L6 where no invariant, 2:L8 where no invariant, zone: true
+ZONE: Federation{
+  DBM 1:
+    [ ≤0  ≤0  ≤0  ]
+    [ <∞  ≤0  ≤0  ]
+    [ <∞  <∞  ≤0  ]
+}
+
+BOUNDS: Bounds { upper: [Some(0), Some(200), None], lower: [Some(0), Some(200), None] }
+ZONE: Federation{
+  DBM 1:
+    [ ≤0  ≤0  ≤0  ]
+    [ <∞  ≤0  <∞  ]
+    [ <∞  <∞  ≤0  ]
+}
+
+New state Pair: 1:L3||L7 where no invariant, 2:L8 where no invariant, zone: true
+Refinement check passed
+Ok(Refinement(Ok(())))
 thread 'tests::refinement::refinement_delay_add::test::a1_a2_not_refines_b' panicked at src/tests/refinement/refinement_delay_add.rs:9:9:
 assertion failed: !refinement_check(PATH, \"refinement: A1 || A2 <= B\")
-
----- tests::refinement::refinement_university::test::test_adm_2_researcher_not_refines_spec stdout ----
-dim is 6
-Adm2 E53 L21 7
-Adm2 E54 L20 7
-Adm2 E55 L21 7
-Adm2 E56 L23 7
-Adm2 E57 L21 7
-Adm2 E58 L23 7
-Adm2 E59 L23 7
-Adm2 E60 L22 7
-Adm2 E61 L23 7
-Adm2 E62 L22 7
-Adm2 E63 L20 7
-Adm2 E64 L22 7
-Researcher E6 L9 7
-Researcher E7 L9 7
-Researcher E8 L7 7
-Researcher E9 L7 7
-Researcher E10 L9 7
-Researcher E11 L7 7
-Researcher E12 L6 7
-Researcher E13 L6 7
-Researcher E14 U0 7
-Researcher E15 U0 7
-Researcher E16 U0 7
-Spec E0 L17 7
-Spec E1 L16 7
-Spec E2 L18 7
-Spec E3 L18 7
-Spec E4 L17 7
-Spec E5 L18 7
-Machine E25 L5 7
-Machine E26 L5 7
-Machine E27 L4 7
-Machine E28 L4 7
-Machine E29 L5 7
-Clocks to be reduced: [] + [RemoveClock { clock_index: 6 }]
-removed_clock_count: 1
-6 - 1
-New dimension: 5
-thread 'tests::refinement::refinement_university::test::test_adm_2_researcher_not_refines_spec' panicked at src/system/extract_system_rep.rs:339:25:
-A component could not be found for clock index 6
-
----- tests::refinement::refinement_university::test::test_admin_researcher_refines_spec stdout ----
-dim is 5
-Administration E44 L1 6
-Administration E45 L2 6
-Administration E46 L3 6
-Administration E47 L0 6
-Administration E48 L1 6
-Administration E49 L1 6
-Administration E50 L2 6
-Administration E51 L3 6
-Administration E52 L3 6
-Administration input_L0_pub L0 6
-Researcher E6 L9 6
-Researcher E7 L9 6
-Researcher E8 L7 6
-Researcher E9 L7 6
-Researcher E10 L9 6
-Researcher E11 L7 6
-Researcher E12 L6 6
-Researcher E13 L6 6
-Researcher E14 U0 6
-Researcher E15 U0 6
-Researcher E16 U0 6
-Spec E0 L17 6
-Spec E1 L16 6
-Spec E2 L18 6
-Spec E3 L18 6
-Spec E4 L17 6
-Spec E5 L18 6
-Machine E25 L5 6
-Machine E26 L5 6
-Machine E27 L4 6
-Machine E28 L4 6
-Machine E29 L5 6
-Clocks to be reduced: [] + [RemoveClock { clock_index: 5 }]
-removed_clock_count: 1
-5 - 1
-New dimension: 4
-thread 'tests::refinement::refinement_university::test::test_admin_researcher_refines_spec' panicked at src/system/extract_system_rep.rs:339:25:
-A component could not be found for clock index 5
-
----- tests::refinement::refinement_university::test::test_machine_adm_2_not_refines_spec stdout ----
-dim is 6
-Machine E25 L5 7
-Machine E26 L5 7
-Machine E27 L4 7
-Machine E28 L4 7
-Machine E29 L5 7
-Adm2 E53 L21 7
-Adm2 E54 L20 7
-Adm2 E55 L21 7
-Adm2 E56 L23 7
-Adm2 E57 L21 7
-Adm2 E58 L23 7
-Adm2 E59 L23 7
-Adm2 E60 L22 7
-Adm2 E61 L23 7
-Adm2 E62 L22 7
-Adm2 E63 L20 7
-Adm2 E64 L22 7
-Spec E0 L17 7
-Spec E1 L16 7
-Spec E2 L18 7
-Spec E3 L18 7
-Spec E4 L17 7
-Spec E5 L18 7
-Researcher E6 L9 7
-Researcher E7 L9 7
-Researcher E8 L7 7
-Researcher E9 L7 7
-Researcher E10 L9 7
-Researcher E11 L7 7
-Researcher E12 L6 7
-Researcher E13 L6 7
-Researcher E14 U0 7
-Researcher E15 U0 7
-Researcher E16 U0 7
-Clocks to be reduced: [] + [RemoveClock { clock_index: 6 }]
-removed_clock_count: 1
-6 - 1
-New dimension: 5
-thread 'tests::refinement::refinement_university::test::test_machine_adm_2_not_refines_spec' panicked at src/system/extract_system_rep.rs:339:25:
-A component could not be found for clock index 6
-
----- tests::refinement::refinement_university::test::test_machine_admin_refines_spec stdout ----
-dim is 5
-Machine E25 L5 6
-Machine E26 L5 6
-Machine E27 L4 6
-Machine E28 L4 6
-Machine E29 L5 6
-Administration E44 L1 6
-Administration E45 L2 6
-Administration E46 L3 6
-Administration E47 L0 6
-Administration E48 L1 6
-Administration E49 L1 6
-Administration E50 L2 6
-Administration E51 L3 6
-Administration E52 L3 6
-Administration input_L0_pub L0 6
-Spec E0 L17 6
-Spec E1 L16 6
-Spec E2 L18 6
-Spec E3 L18 6
-Spec E4 L17 6
-Spec E5 L18 6
-Researcher E6 L9 6
-Researcher E7 L9 6
-Researcher E8 L7 6
-Researcher E9 L7 6
-Researcher E10 L9 6
-Researcher E11 L7 6
-Researcher E12 L6 6
-Researcher E13 L6 6
-Researcher E14 U0 6
-Researcher E15 U0 6
-Researcher E16 U0 6
-Clocks to be reduced: [] + [RemoveClock { clock_index: 5 }]
-removed_clock_count: 1
-5 - 1
-New dimension: 4
-thread 'tests::refinement::refinement_university::test::test_machine_admin_refines_spec' panicked at src/system/extract_system_rep.rs:339:25:
-A component could not be found for clock index 5
-
----- tests::refinement::refinement_university::test::test_researcher_machine_refines_spec stdout ----
-dim is 5
-Researcher E6 L9 6
-Researcher E7 L9 6
-Researcher E8 L7 6
-Researcher E9 L7 6
-Researcher E10 L9 6
-Researcher E11 L7 6
-Researcher E12 L6 6
-Researcher E13 L6 6
-Researcher E14 U0 6
-Researcher E15 U0 6
-Researcher E16 U0 6
-Machine E25 L5 6
-Machine E26 L5 6
-Machine E27 L4 6
-Machine E28 L4 6
-Machine E29 L5 6
-Spec E0 L17 6
-Spec E1 L16 6
-Spec E2 L18 6
-Spec E3 L18 6
-Spec E4 L17 6
-Spec E5 L18 6
-Administration E44 L1 6
-Administration E45 L2 6
-Administration E46 L3 6
-Administration E47 L0 6
-Administration E48 L1 6
-Administration E49 L1 6
-Administration E50 L2 6
-Administration E51 L3 6
-Administration E52 L3 6
-Administration input_L0_pub L0 6
-Clocks to be reduced: [] + [RemoveClock { clock_index: 5 }]
-removed_clock_count: 1
-5 - 1
-New dimension: 4
-thread 'tests::refinement::refinement_university::test::test_researcher_machine_refines_spec' panicked at src/system/extract_system_rep.rs:339:25:
-A component could not be found for clock index 5
-
----- tests::refinement::refinement_university::test::test_adm_2_not_refines_spec stdout ----
-dim is 6
-Adm2 E53 L21 7
-Adm2 E54 L20 7
-Adm2 E55 L21 7
-Adm2 E56 L23 7
-Adm2 E57 L21 7
-Adm2 E58 L23 7
-Adm2 E59 L23 7
-Adm2 E60 L22 7
-Adm2 E61 L23 7
-Adm2 E62 L22 7
-Adm2 E63 L20 7
-Adm2 E64 L22 7
-Spec E0 L17 7
-Spec E1 L16 7
-Spec E2 L18 7
-Spec E3 L18 7
-Spec E4 L17 7
-Spec E5 L18 7
-Researcher E6 L9 7
-Researcher E7 L9 7
-Researcher E8 L7 7
-Researcher E9 L7 7
-Researcher E10 L9 7
-Researcher E11 L7 7
-Researcher E12 L6 7
-Researcher E13 L6 7
-Researcher E14 U0 7
-Researcher E15 U0 7
-Researcher E16 U0 7
-Machine E25 L5 7
-Machine E26 L5 7
-Machine E27 L4 7
-Machine E28 L4 7
-Machine E29 L5 7
-Clocks to be reduced: [] + [RemoveClock { clock_index: 5 }]
-removed_clock_count: 1
-6 - 1
-New dimension: 5
-thread 'tests::refinement::refinement_university::test::test_adm_2_not_refines_spec' panicked at src/system/extract_system_rep.rs:339:25:
-A component could not be found for clock index 5
-
----- tests::refinement::refinement_university::test::test_researcher_machine_not_refines_adm_2_spec stdout ----
-dim is 6
-Researcher E6 L9 7
-Researcher E7 L9 7
-Researcher E8 L7 7
-Researcher E9 L7 7
-Researcher E10 L9 7
-Researcher E11 L7 7
-Researcher E12 L6 7
-Researcher E13 L6 7
-Researcher E14 U0 7
-Researcher E15 U0 7
-Researcher E16 U0 7
-Machine E25 L5 7
-Machine E26 L5 7
-Machine E27 L4 7
-Machine E28 L4 7
-Machine E29 L5 7
-Spec E0 L17 7
-Spec E1 L16 7
-Spec E2 L18 7
-Spec E3 L18 7
-Spec E4 L17 7
-Spec E5 L18 7
-Adm2 E53 L21 7
-Adm2 E54 L20 7
-Adm2 E55 L21 7
-Adm2 E56 L23 7
-Adm2 E57 L21 7
-Adm2 E58 L23 7
-Adm2 E59 L23 7
-Adm2 E60 L22 7
-Adm2 E61 L23 7
-Adm2 E62 L22 7
-Adm2 E63 L20 7
-Adm2 E64 L22 7
-Clocks to be reduced: [] + [RemoveClock { clock_index: 6 }]
-removed_clock_count: 1
-6 - 1
-New dimension: 5
-thread 'tests::refinement::refinement_university::test::test_researcher_machine_not_refines_adm_2_spec' panicked at src/system/extract_system_rep.rs:339:25:
-A component could not be found for clock index 6
-
----- tests::refinement::refinement_university::test::test_admin_refines_spec stdout ----
-dim is 5
-Administration E44 L1 6
-Administration E45 L2 6
-Administration E46 L3 6
-Administration E47 L0 6
-Administration E48 L1 6
-Administration E49 L1 6
-Administration E50 L2 6
-Administration E51 L3 6
-Administration E52 L3 6
-Administration input_L0_pub L0 6
-Spec E0 L17 6
-Spec E1 L16 6
-Spec E2 L18 6
-Spec E3 L18 6
-Spec E4 L17 6
-Spec E5 L18 6
-Researcher E6 L9 6
-Researcher E7 L9 6
-Researcher E8 L7 6
-Researcher E9 L7 6
-Researcher E10 L9 6
-Researcher E11 L7 6
-Researcher E12 L6 6
-Researcher E13 L6 6
-Researcher E14 U0 6
-Researcher E15 U0 6
-Researcher E16 U0 6
-Machine E25 L5 6
-Machine E26 L5 6
-Machine E27 L4 6
-Machine E28 L4 6
-Machine E29 L5 6
-Clocks to be reduced: [] + [RemoveClock { clock_index: 5 }]
-removed_clock_count: 1
-5 - 1
-New dimension: 4
-thread 'tests::refinement::refinement_university::test::test_admin_refines_spec' panicked at src/system/extract_system_rep.rs:339:25:
-A component could not be found for clock index 5
-
----- tests::refinement::refinement_university::test::test_researcher_refines_spec stdout ----
-dim is 5
-Researcher E6 L9 6
-Researcher E7 L9 6
-Researcher E8 L7 6
-Researcher E9 L7 6
-Researcher E10 L9 6
-Researcher E11 L7 6
-Researcher E12 L6 6
-Researcher E13 L6 6
-Researcher E14 U0 6
-Researcher E15 U0 6
-Researcher E16 U0 6
-Spec E0 L17 6
-Spec E1 L16 6
-Spec E2 L18 6
-Spec E3 L18 6
-Spec E4 L17 6
-Spec E5 L18 6
-Administration E44 L1 6
-Administration E45 L2 6
-Administration E46 L3 6
-Administration E47 L0 6
-Administration E48 L1 6
-Administration E49 L1 6
-Administration E50 L2 6
-Administration E51 L3 6
-Administration E52 L3 6
-Administration input_L0_pub L0 6
-Machine E25 L5 6
-Machine E26 L5 6
-Machine E27 L4 6
-Machine E28 L4 6
-Machine E29 L5 6
-Clocks to be reduced: [] + [RemoveClock { clock_index: 5 }]
-removed_clock_count: 1
-5 - 1
-New dimension: 4
-thread 'tests::refinement::refinement_university::test::test_researcher_refines_spec' panicked at src/system/extract_system_rep.rs:339:25:
-A component could not be found for clock index 5
-
----- tests::refinement::xml::consistency_tests::test::test_g10 stdout ----
-rhs was none
-G10 NotImplemented id26 2
-G10 NotImplemented id27 2
-G10 input_id26_i id26 2
-G10 input_id27_i id27 2
-G10 input_id28_i id28 2
-dim is 1 in clock_reduce_single
-Clocks to be reduced: []
-New dimension: 1
-G10 NotImplemented id26 2
-G10 NotImplemented id27 2
-G10 input_id26_i id26 2
-G10 input_id27_i id27 2
-G10 input_id28_i id28 2
-thread 'tests::refinement::xml::consistency_tests::test::test_g10' panicked at src/tests/refinement/xml/consistency_tests.rs:64:9:
-
----- tests::refinement::xml::consistency_tests::test::test_g12 stdout ----
-rhs was none
-G12 NotImplemented id34 2
-G12 NotImplemented id33 2
-G12 NotImplemented id32 2
-G12 NotImplemented id34 2
-G12 input_id32_i id32 2
-G12 input_id35_i id35 2
-dim is 1 in clock_reduce_single
-Clocks to be reduced: []
-New dimension: 1
-G12 NotImplemented id34 2
-G12 NotImplemented id33 2
-G12 NotImplemented id32 2
-G12 NotImplemented id34 2
-G12 input_id32_i id32 2
-G12 input_id35_i id35 2
-thread 'tests::refinement::xml::consistency_tests::test::test_g12' panicked at src/tests/refinement/xml/consistency_tests.rs:74:9:
-
----- tests::refinement::xml::consistency_tests::test::test_g11 stdout ----
-rhs was none
-G11 NotImplemented id31 2
-G11 NotImplemented id30 2
-G11 NotImplemented id29 2
-G11 input_id29_i id29 2
-G11 input_id30_i id30 2
-G11 input_id31_i id31 2
-dim is 1 in clock_reduce_single
-Clocks to be reduced: []
-New dimension: 1
-G11 NotImplemented id31 2
-G11 NotImplemented id30 2
-G11 NotImplemented id29 2
-G11 input_id29_i id29 2
-G11 input_id30_i id30 2
-G11 input_id31_i id31 2
-thread 'tests::refinement::xml::consistency_tests::test::test_g11' panicked at src/tests/refinement/xml/consistency_tests.rs:69:9:
-
----- tests::refinement::xml::consistency_tests::test::test_g14 stdout ----
-rhs was none
-G14 NotImplemented id40 2
-G14 NotImplemented id41 2
-G14 input_id40_i id40 2
-G14 input_id41_i id41 2
-G14 input_id42_i id42 2
-dim is 1 in clock_reduce_single
-Clocks to be reduced: []
-New dimension: 1
-G14 NotImplemented id40 2
-G14 NotImplemented id41 2
-G14 input_id40_i id40 2
-G14 input_id41_i id41 2
-G14 input_id42_i id42 2
-thread 'tests::refinement::xml::consistency_tests::test::test_g14' panicked at src/tests/refinement/xml/consistency_tests.rs:84:9:
-
----- tests::refinement::xml::consistency_tests::test::test_g19 stdout ----
-rhs was none
-G19 NotImplemented id55 2
-dim is 1 in clock_reduce_single
-Clocks to be reduced: []
-New dimension: 1
-G19 NotImplemented id55 2
-thread 'tests::refinement::xml::consistency_tests::test::test_g19' panicked at src/tests/refinement/xml/consistency_tests.rs:109:9:
-
----- tests::refinement::xml::consistency_tests::test::test_g16 stdout ----
-rhs was none
-G16 NotImplemented id46 2
-G16 NotImplemented id47 2
-G16 NotImplemented id48 2
-G16 input_id46_i id46 2
-G16 input_id47_i id47 2
-G16 input_id48_i id48 2
-G16 input_id49_i id49 2
-dim is 1 in clock_reduce_single
-Clocks to be reduced: [RemoveClock { clock_index: 1 }]
-New dimension: 0
-G16 NotImplemented id46 1
-G16 NotImplemented id47 1
-G16 NotImplemented id48 1
-G16 input_id46_i id46 1
-G16 input_id47_i id47 1
-G16 input_id48_i id48 1
-G16 input_id49_i id49 1
-thread 'tests::refinement::xml::consistency_tests::test::test_g16' panicked at src/tests/refinement/xml/consistency_tests.rs:94:9:
-
----- tests::refinement::refinement_university::test::test_researcher_not_refines_adm_2_spec stdout ----
-dim is 6
-Researcher E6 L9 7
-Researcher E7 L9 7
-Researcher E8 L7 7
-Researcher E9 L7 7
-Researcher E10 L9 7
-Researcher E11 L7 7
-Researcher E12 L6 7
-Researcher E13 L6 7
-Researcher E14 U0 7
-Researcher E15 U0 7
-Researcher E16 U0 7
-Spec E0 L17 7
-Spec E1 L16 7
-Spec E2 L18 7
-Spec E3 L18 7
-Spec E4 L17 7
-Spec E5 L18 7
-Adm2 E53 L21 7
-Adm2 E54 L20 7
-Adm2 E55 L21 7
-Adm2 E56 L23 7
-Adm2 E57 L21 7
-Adm2 E58 L23 7
-Adm2 E59 L23 7
-Adm2 E60 L22 7
-Adm2 E61 L23 7
-Adm2 E62 L22 7
-Adm2 E63 L20 7
-Adm2 E64 L22 7
-Machine E25 L5 7
-Machine E26 L5 7
-Machine E27 L4 7
-Machine E28 L4 7
-Machine E29 L5 7
-Clocks to be reduced: [] + [RemoveClock { clock_index: 6 }]
-removed_clock_count: 1
-6 - 1
-New dimension: 5
-thread 'tests::refinement::refinement_university::test::test_researcher_not_refines_adm_2_spec' panicked at src/system/extract_system_rep.rs:339:25:
-A component could not be found for clock index 6
-
----- tests::refinement::xml::consistency_tests::test::test_g4 stdout ----
-rhs was none
-G4 NotImplemented id11 2
-G4 NotImplemented id9 2
-G4 NotImplemented id10 2
-G4 input_id9_i id9 2
-dim is 1 in clock_reduce_single
-Clocks to be reduced: []
-New dimension: 1
-G4 NotImplemented id11 2
-G4 NotImplemented id9 2
-G4 NotImplemented id10 2
-G4 input_id9_i id9 2
-thread 'tests::refinement::xml::consistency_tests::test::test_g4' panicked at src/tests/refinement/xml/consistency_tests.rs:34:9:
-
----- tests::refinement::xml::consistency_tests::test::test_g3 stdout ----
-rhs was none
-G3 NotImplemented id8 2
-G3 NotImplemented id6 2
-G3 NotImplemented id7 2
-G3 input_id6_i id6 2
-G3 input_id7_i id7 2
-dim is 1 in clock_reduce_single
-Clocks to be reduced: []
-New dimension: 1
-G3 NotImplemented id8 2
-G3 NotImplemented id6 2
-G3 NotImplemented id7 2
-G3 input_id6_i id6 2
-G3 input_id7_i id7 2
-thread 'tests::refinement::xml::consistency_tests::test::test_g3' panicked at src/tests/refinement/xml/consistency_tests.rs:29:9:
-
----- tests::refinement::xml::consistency_tests::test::test_g5 stdout ----
-rhs was none
-G5 NotImplemented id12 2
-G5 input_id12_i id12 2
-dim is 1 in clock_reduce_single
-Clocks to be reduced: []
-New dimension: 1
-G5 NotImplemented id12 2
-G5 input_id12_i id12 2
-thread 'tests::refinement::xml::consistency_tests::test::test_g5' panicked at src/tests/refinement/xml/consistency_tests.rs:39:9:
-
----- tests::refinement::xml::consistency_tests::test::test_g7 stdout ----
-rhs was none
-G7 NotImplemented id17 2
-G7 NotImplemented id18 2
-G7 input_id17_i id17 2
-G7 input_id18_i id18 2
-G7 input_id19_i id19 2
-dim is 1 in clock_reduce_single
-Clocks to be reduced: []
-New dimension: 1
-G7 NotImplemented id17 2
-G7 NotImplemented id18 2
-G7 input_id17_i id17 2
-G7 input_id18_i id18 2
-G7 input_id19_i id19 2
-thread 'tests::refinement::xml::consistency_tests::test::test_g7' panicked at src/tests/refinement/xml/consistency_tests.rs:49:9:
-
----- tests::refinement::refinement_university::test::test_machine_refines_spec stdout ----
-dim is 5
-Machine E25 L5 6
-Machine E26 L5 6
-Machine E27 L4 6
-Machine E28 L4 6
-Machine E29 L5 6
-Spec E0 L17 6
-Spec E1 L16 6
-Spec E2 L18 6
-Spec E3 L18 6
-Spec E4 L17 6
-Spec E5 L18 6
-Administration E44 L1 6
-Administration E45 L2 6
-Administration E46 L3 6
-Administration E47 L0 6
-Administration E48 L1 6
-Administration E49 L1 6
-Administration E50 L2 6
-Administration E51 L3 6
-Administration E52 L3 6
-Administration input_L0_pub L0 6
-Researcher E6 L9 6
-Researcher E7 L9 6
-Researcher E8 L7 6
-Researcher E9 L7 6
-Researcher E10 L9 6
-Researcher E11 L7 6
-Researcher E12 L6 6
-Researcher E13 L6 6
-Researcher E14 U0 6
-Researcher E15 U0 6
-Researcher E16 U0 6
-Clocks to be reduced: [] + [RemoveClock { clock_index: 5 }]
-removed_clock_count: 1
-5 - 1
-New dimension: 4
-thread 'tests::refinement::refinement_university::test::test_machine_refines_spec' panicked at src/system/extract_system_rep.rs:339:25:
-A component could not be found for clock index 5
-
----- tests::refinement::xml::consistency_tests::test::test_g9 stdout ----
-rhs was none
-G9 NotImplemented id23 2
-G9 NotImplemented id24 2
-G9 input_id23_i id23 2
-G9 input_id24_i id24 2
-G9 input_id25_i id25 2
-dim is 1 in clock_reduce_single
-Clocks to be reduced: []
-New dimension: 1
-G9 NotImplemented id23 2
-G9 NotImplemented id24 2
-G9 input_id23_i id23 2
-G9 input_id24_i id24 2
-G9 input_id25_i id25 2
-thread 'tests::refinement::xml::consistency_tests::test::test_g9' panicked at src/tests/refinement/xml/consistency_tests.rs:59:9:
-
----- tests::refinement::xml::delay_refinement::test::k1_not_refines_k2 stdout ----
-dim is 2
-K1 NotImplemented id76 3
-K1 NotImplemented id77 3
-K2 NotImplemented id79 3
-K2 NotImplemented id80 3
-Clocks to be reduced: [] + []
-removed_clock_count: 0
-2 - 0
-New dimension: 2
-K1 NotImplemented id76 3
-K1 NotImplemented id77 3
-K2 NotImplemented id79 3
-K2 NotImplemented id80 3
-thread 'tests::refinement::xml::delay_refinement::test::k1_not_refines_k2' panicked at src/tests/refinement/xml/delay_refinement.rs:346:9:
-assertion failed: !refinement_check(PATH, \"refinement: K1 <= K2\")
-
----- tests::refinement::xml::delay_refinement::test::k3_not_refines_k4 stdout ----
-dim is 2
-K3 NotImplemented id82 3
-K3 NotImplemented id83 3
-K4 NotImplemented id85 3
-K4 NotImplemented id86 3
-Clocks to be reduced: [] + []
-removed_clock_count: 0
-2 - 0
-New dimension: 2
-K3 NotImplemented id82 3
-K3 NotImplemented id83 3
-K4 NotImplemented id85 3
-K4 NotImplemented id86 3
-thread 'tests::refinement::xml::delay_refinement::test::k3_not_refines_k4' panicked at src/tests/refinement/xml/delay_refinement.rs:352:9:
-assertion failed: !refinement_check(PATH, \"refinement: K3 <= K4\")
-
----- tests::refinement::refinement_university::test::test_machine_not_refines_adm_2_spec stdout ----
-dim is 6
-Machine E25 L5 7
-Machine E26 L5 7
-Machine E27 L4 7
-Machine E28 L4 7
-Machine E29 L5 7
-Spec E0 L17 7
-Spec E1 L16 7
-Spec E2 L18 7
-Spec E3 L18 7
-Spec E4 L17 7
-Spec E5 L18 7
-Adm2 E53 L21 7
-Adm2 E54 L20 7
-Adm2 E55 L21 7
-Adm2 E56 L23 7
-Adm2 E57 L21 7
-Adm2 E58 L23 7
-Adm2 E59 L23 7
-Adm2 E60 L22 7
-Adm2 E61 L23 7
-Adm2 E62 L22 7
-Adm2 E63 L20 7
-Adm2 E64 L22 7
-Researcher E6 L9 7
-Researcher E7 L9 7
-Researcher E8 L7 7
-Researcher E9 L7 7
-Researcher E10 L9 7
-Researcher E11 L7 7
-Researcher E12 L6 7
-Researcher E13 L6 7
-Researcher E14 U0 7
-Researcher E15 U0 7
-Researcher E16 U0 7
-Clocks to be reduced: [] + [RemoveClock { clock_index: 5 }]
-removed_clock_count: 1
-6 - 1
-New dimension: 5
-thread 'tests::refinement::refinement_university::test::test_machine_not_refines_adm_2_spec' panicked at src/system/extract_system_rep.rs:339:25:
-A component could not be found for clock index 5
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 
 
 failures:
-    tests::clock_reduction::clock_removal_test::clock_removal_tests::test_no_used_clock_multi
-    tests::grpc::simulation::tests::start_simulation_then_take_simulation_step::_machine_spec_researcher_samples_json_ecdaruniversity_spec_machine_researcher_expects
     tests::refinement::refinement_delay_add::test::a1_a2_not_refines_b
-    tests::refinement::refinement_university::test::test_adm_2_not_refines_spec
-    tests::refinement::refinement_university::test::test_adm_2_researcher_not_refines_spec
-    tests::refinement::refinement_university::test::test_admin_refines_spec
-    tests::refinement::refinement_university::test::test_admin_researcher_refines_spec
-    tests::refinement::refinement_university::test::test_machine_adm_2_not_refines_spec
-    tests::refinement::refinement_university::test::test_machine_admin_refines_spec
-    tests::refinement::refinement_university::test::test_machine_not_refines_adm_2_spec
-    tests::refinement::refinement_university::test::test_machine_refines_spec
-    tests::refinement::refinement_university::test::test_researcher_machine_not_refines_adm_2_spec
-    tests::refinement::refinement_university::test::test_researcher_machine_refines_spec
-    tests::refinement::refinement_university::test::test_researcher_not_refines_adm_2_spec
-    tests::refinement::refinement_university::test::test_researcher_refines_spec
-    tests::refinement::xml::consistency_tests::test::test_g10
-    tests::refinement::xml::consistency_tests::test::test_g11
-    tests::refinement::xml::consistency_tests::test::test_g12
-    tests::refinement::xml::consistency_tests::test::test_g14
-    tests::refinement::xml::consistency_tests::test::test_g16
-    tests::refinement::xml::consistency_tests::test::test_g19
-    tests::refinement::xml::consistency_tests::test::test_g3
-    tests::refinement::xml::consistency_tests::test::test_g4
-    tests::refinement::xml::consistency_tests::test::test_g5
-    tests::refinement::xml::consistency_tests::test::test_g7
-    tests::refinement::xml::consistency_tests::test::test_g9
-    tests::refinement::xml::delay_refinement::test::k1_not_refines_k2
-    tests::refinement::xml::delay_refinement::test::k3_not_refines_k4
 
-test result: FAILED. 566 passed; 28 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.48s
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 593 filtered out; finished in 0.00s
 

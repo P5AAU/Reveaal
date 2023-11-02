@@ -140,6 +140,5 @@ pub mod clock_removal_tests {
             run_query(PATH, "refinement: A <= A").is_ok(),
             "A should refine itself"
         );
-        assert!(false);
     }
 }
