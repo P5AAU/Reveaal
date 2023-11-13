@@ -10,7 +10,6 @@ pub mod test {
     use edbm::util::constraints::ClockIndex;
     use std::collections::{HashMap, HashSet};
     use std::path::Path;
-    use std::sync::atomic::AtomicUsize;
 
     /// Reads and processes a component.
     pub fn read_json_component_and_process(project_path: &str, component_name: &str) -> Component {
@@ -75,12 +74,12 @@ pub mod test {
         let mut project_loader =
             ProjectLoader::new(path.to_string_lossy().to_string(), DEFAULT_SETTINGS);
 
-        let next_clock_index: AtomicUsize = AtomicUsize::new(0);
+        let mut next_clock_index: ClockIndex = 0;
         let mut component1 = project_loader.get_component(comp1).clone();
         let mut component2 = project_loader.get_component(comp2).clone();
 
-        component1.set_clock_indices(&next_clock_index);
-        component2.set_clock_indices(&next_clock_index);
+        component1.set_clock_indices(&mut next_clock_index);
+        component2.set_clock_indices(&mut next_clock_index);
 
         let dimensions =
             component1.declarations.clocks.len() + component2.declarations.clocks.len();
@@ -100,12 +99,12 @@ pub mod test {
         let mut project_loader =
             ProjectLoader::new(path.to_string_lossy().to_string(), DEFAULT_SETTINGS);
 
-        let next_clock_index = AtomicUsize::new(0);
+        let mut next_clock_index: ClockIndex = 0;
         let mut component1 = project_loader.get_component(comp1).clone();
         let mut component2 = project_loader.get_component(comp2).clone();
 
-        component1.set_clock_indices(&next_clock_index);
-        component2.set_clock_indices(&next_clock_index);
+        component1.set_clock_indices(&mut next_clock_index);
+        component2.set_clock_indices(&mut next_clock_index);
 
         let dimensions =
             component1.declarations.clocks.len() + component2.declarations.clocks.len();

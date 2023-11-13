@@ -7,7 +7,6 @@ pub mod test {
     use crate::tests::clock_reduction::helper::test::get_conjunction_system_recipe;
     use std::collections::HashSet;
     use std::path::Path;
-    use std::sync::atomic::{AtomicUsize, Ordering};
 
     #[test]
     fn test_advanced_clock_removal() {
@@ -17,17 +16,16 @@ pub mod test {
             "Component2",
         );
 
-        let dimensions = AtomicUsize::new(dimensions);
+        let mut dimensions = dimensions;
 
         let mut system_recipe_copy = Box::new(system_recipe);
 
-        clock_reduction::clock_reduce(&mut system_recipe_copy, None, &dimensions, None).unwrap();
+        clock_reduction::clock_reduce(&mut system_recipe_copy, None, &mut dimensions, None)
+            .unwrap();
 
         //We let it use the unreduced amount of dimensions so we can catch the error
         //If a clock is not reduced
-        let compiled = system_recipe_copy
-            .compile(dimensions.load(Ordering::SeqCst))
-            .unwrap();
+        let compiled = system_recipe_copy.compile(dimensions).unwrap();
 
         for location in compiled.get_all_locations() {
             assert!(location.invariant.is_none(), "Should contain no invariants")

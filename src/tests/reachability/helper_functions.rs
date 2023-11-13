@@ -1,6 +1,4 @@
 pub mod reachability_test_helper_functions {
-    use std::sync::atomic::AtomicUsize;
-    use std::sync::atomic::Ordering;
     use std::sync::Arc;
     use std::sync::Mutex;
 
@@ -27,12 +25,11 @@ pub mod reachability_test_helper_functions {
             crate::tests::TEST_SETTINGS,
         )));
 
-        let dim = AtomicUsize::new(0);
+        let dim = Arc::new(Mutex::new(0));
         let quotient_index = Arc::new(Mutex::new(None));
-        let machine = get_system_recipe(&model, comp_loader, &dim, quotient_index);
-        let dim_before = dim.load(Ordering::SeqCst);
+        let machine = get_system_recipe(&model, comp_loader, Arc::clone(&dim), quotient_index);
         // TODO: unwrap might not be the best way to handle this
-        let system = machine.clone().compile(dim_before).unwrap();
+        let system = machine.clone().compile(*dim.lock().unwrap()).unwrap();
         (machine, system)
     }
 }

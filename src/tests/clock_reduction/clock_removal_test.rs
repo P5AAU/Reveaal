@@ -1,12 +1,13 @@
 #[cfg(test)]
 pub mod clock_removal_tests {
+    use edbm::util::constraints::ClockIndex;
+
     use crate::data_reader::json_reader::read_json_component;
     use crate::extract_system_rep::{clock_reduction, SystemRecipe};
     use crate::model_objects::Component;
     use crate::tests::refinement::helper::run_query;
     use crate::transition_systems::{CompiledComponent, TransitionSystem};
     use std::collections::HashSet;
-    use std::sync::atomic::{AtomicUsize, Ordering};
 
     #[test]
     fn test_check_declarations_unused_clocks_are_removed() {
@@ -87,20 +88,15 @@ pub mod clock_removal_tests {
 
         let comp = read_json_component(PATH, "A");
 
-        let dim = AtomicUsize::new(comp.declarations.clocks.len());
+        let mut dim = comp.declarations.clocks.len();
         assert_eq!(
-            dim.load(Ordering::SeqCst),
-            4,
+            dim, 4,
             "As of writing these tests, this component has 4 unused clocks"
         );
 
         let recipe = SystemRecipe::Component(Box::from(comp));
-        clock_reduction::clock_reduce(&mut Box::from(recipe), None, &dim, None).unwrap();
-        assert_eq!(
-            dim.load(Ordering::SeqCst),
-            0,
-            "After removing the clocks, the dim should be 0"
-        );
+        clock_reduction::clock_reduce(&mut Box::from(recipe), None, &mut dim, None).unwrap();
+        assert_eq!(dim, 0, "After removing the clocks, the dim should be 0");
 
         assert!(
             run_query(PATH, "consistency: A").is_ok(),
@@ -111,15 +107,14 @@ pub mod clock_removal_tests {
     #[test]
     fn test_no_used_clock_multi() {
         const PATH: &str = "samples/json/AG";
-        let dim = AtomicUsize::new(0);
+        let mut dim: ClockIndex = 0;
         let mut lhs = read_json_component(PATH, "A");
-        lhs.set_clock_indices(&dim);
+        lhs.set_clock_indices(&mut dim);
         let mut rhs = read_json_component(PATH, "A");
-        rhs.set_clock_indices(&dim);
+        rhs.set_clock_indices(&mut dim);
 
         assert_eq!(
-            dim.load(Ordering::SeqCst),
-            8,
+            dim, 8,
             "As of writing these tests, these component has 8 unused clocks"
         );
         assert_eq!(
@@ -129,13 +124,9 @@ pub mod clock_removal_tests {
 
         let l = SystemRecipe::Component(Box::from(lhs));
         let r = SystemRecipe::Component(Box::from(rhs));
-        clock_reduction::clock_reduce(&mut Box::from(l), Some(&mut Box::from(r)), &dim, None)
+        clock_reduction::clock_reduce(&mut Box::from(l), Some(&mut Box::from(r)), &mut dim, None)
             .unwrap();
-        assert_eq!(
-            dim.load(Ordering::SeqCst),
-            0,
-            "After removing the clocks, the dim should be 0"
-        );
+        assert_eq!(dim, 0, "After removing the clocks, the dim should be 0");
         assert!(
             run_query(PATH, "refinement: A <= A").is_ok(),
             "A should refine itself"

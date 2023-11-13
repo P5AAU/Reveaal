@@ -1,9 +1,9 @@
 #[cfg(test)]
 pub mod util {
-    use std::sync::atomic::AtomicUsize;
-    use std::sync::atomic::Ordering;
     use std::sync::Arc;
     use std::sync::Mutex;
+
+    use edbm::util::constraints::ClockIndex;
 
     use crate::data_reader::parse_queries;
     use crate::model_objects::expressions::QueryExpression;
@@ -27,7 +27,7 @@ pub mod util {
             .unwrap()
             .remove(0);
 
-        let dim = AtomicUsize::new(0);
+        let dim: Arc<Mutex<ClockIndex>> = Arc::new(Mutex::new(0));
         let (base_system, new_system) = if let QueryExpression::GetComponent(expr) = &query {
             let left_project_loader = Arc::clone(&project_loader);
             let right_project_loader = Arc::clone(&project_loader);
@@ -35,13 +35,13 @@ pub mod util {
                 extract_system_rep::get_system_recipe(
                     &expr.system,
                     left_project_loader,
-                    &dim,
+                    Arc::clone(&dim),
                     Arc::new(Mutex::new(None)),
                 ),
                 extract_system_rep::get_system_recipe(
                     &expr.system,
                     right_project_loader,
-                    &dim,
+                    Arc::clone(&dim),
                     Arc::new(Mutex::new(None)),
                 ),
             )
@@ -49,9 +49,9 @@ pub mod util {
             panic!("Failed to create system")
         };
 
-        let dim_before = dim.load(Ordering::SeqCst);
+        let dim = dim.lock().unwrap();
 
-        let new_comp = new_system.compile(dim_before);
+        let new_comp = new_system.compile(*dim);
         //TODO:: Return the SystemRecipeFailure if new_comp is a failure
         if new_comp.is_err() {
             return;
@@ -59,10 +59,10 @@ pub mod util {
         let new_comp = combine_components(&new_comp.unwrap(), PruningStrategy::NoPruning);
 
         let new_comp = SystemRecipe::Component(Box::new(new_comp))
-            .compile(dim_before)
+            .compile(*dim)
             .unwrap();
         //TODO:: if it can fail unwrap should be replaced.
-        let base_system = base_system.compile(dim_before).unwrap();
+        let base_system = base_system.compile(*dim).unwrap();
 
         let base_precheck = base_system.precheck_sys_rep();
         let new_precheck = new_comp.precheck_sys_rep();

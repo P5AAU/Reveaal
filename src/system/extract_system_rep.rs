@@ -7,7 +7,6 @@ use crate::system::executable_query::{
 };
 use crate::system::extract_state::get_state;
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
 use crate::transition_systems::{
@@ -45,7 +44,7 @@ pub fn create_executable_query(
     full_query: &Query,
     component_loader: Arc<Mutex<dyn ComponentLoader>>,
 ) -> Result<Box<dyn ExecutableQuery>, ExecutableQueryError> {
-    let dim: Arc<AtomicUsize> = Arc::new(AtomicUsize::new(0));
+    let dim: Arc<Mutex<ClockIndex>> = Arc::new(Mutex::new(0));
 
     if let Some(query) = full_query.get_query() {
         match query {
@@ -65,7 +64,7 @@ pub fn create_executable_query(
                         get_system_recipe(
                             left_side,
                             left_component_loader,
-                            &left_dim,
+                            left_dim,
                             left_quotient_index,
                         )
                     },
@@ -73,11 +72,13 @@ pub fn create_executable_query(
                         get_system_recipe(
                             right_side,
                             right_component_loader,
-                            &right_dim,
+                            right_dim,
                             right_quotient_index,
                         )
                     },
                 );
+
+                let mut dim_after = dim.lock().unwrap();
 
                 if !component_loader
                     .lock()
@@ -88,24 +89,27 @@ pub fn create_executable_query(
                     clock_reduction::clock_reduce(
                         &mut left,
                         Some(&mut right),
-                        &dim,
+                        &mut dim_after,
                         *quotient_index.lock().unwrap(),
                     )?;
                 }
 
                 let mut component_index = 0;
-                let dim_before = dim.load(Ordering::SeqCst);
 
                 Ok(Box::new(RefinementExecutor {
-                    sys1: left.compile_with_index(dim_before, &mut component_index)?,
-                    sys2: right.compile_with_index(dim_before, &mut component_index)?,
+                    sys1: left.compile_with_index(*dim_after, &mut component_index)?,
+                    sys2: right.compile_with_index(*dim_after, &mut component_index)?,
                 }))
             }
             QueryExpression::Reachability { system, from, to } => {
-                let machine =
-                    get_system_recipe(system, component_loader, &dim, Arc::new(Mutex::new(None)));
-                let dim_before = dim.load(Ordering::SeqCst);
-                let transition_system = machine.clone().compile(dim_before)?;
+                let machine = get_system_recipe(
+                    system,
+                    component_loader,
+                    Arc::clone(&dim),
+                    Arc::new(Mutex::new(None)),
+                );
+                let dim_before = dim.lock().unwrap();
+                let transition_system = machine.clone().compile(*dim_before)?;
 
                 // Assign the start state to the initial state of the transition system if no start state is given by the query
                 let start_state: State = if let Some(state) = from.as_ref() {
@@ -137,9 +141,10 @@ pub fn create_executable_query(
                 let mut recipe = get_system_recipe(
                     query_expression,
                     Arc::clone(&component_loader),
-                    &dim,
+                    Arc::clone(&dim),
                     Arc::clone(&quotient_index),
                 );
+                let mut dim_after = dim.lock().unwrap();
 
                 if !component_loader
                     .lock()
@@ -150,15 +155,13 @@ pub fn create_executable_query(
                     clock_reduction::clock_reduce(
                         &mut recipe,
                         None,
-                        &dim,
+                        &mut dim_after,
                         *quotient_index.lock().unwrap(),
                     )?;
                 }
 
-                let dim_before = dim.load(Ordering::SeqCst);
-
                 Ok(Box::new(ConsistencyExecutor {
-                    system: recipe.compile(dim_before)?,
+                    system: recipe.compile(*dim_after)?,
                 }))
             }
             QueryExpression::Determinism(query_expression) => {
@@ -166,9 +169,10 @@ pub fn create_executable_query(
                 let mut recipe = get_system_recipe(
                     query_expression,
                     Arc::clone(&component_loader),
-                    &dim,
+                    Arc::clone(&dim),
                     Arc::clone(&quotient_index),
                 );
+                let mut dim_after = dim.lock().unwrap();
 
                 if !component_loader
                     .lock()
@@ -179,15 +183,13 @@ pub fn create_executable_query(
                     clock_reduction::clock_reduce(
                         &mut recipe,
                         None,
-                        &dim,
+                        &mut dim_after,
                         *quotient_index.lock().unwrap(),
                     )?;
                 }
 
-                let dim_before = dim.load(Ordering::SeqCst);
-
                 Ok(Box::new(DeterminismExecutor {
-                    system: recipe.compile(dim_before)?,
+                    system: recipe.compile(*dim_after)?,
                 }))
             }
             QueryExpression::GetComponent(SaveExpression { system, name }) => {
@@ -195,9 +197,10 @@ pub fn create_executable_query(
                 let mut recipe = get_system_recipe(
                     system,
                     Arc::clone(&component_loader),
-                    &dim,
+                    Arc::clone(&dim),
                     Arc::clone(&quotient_index),
                 );
+                let mut dim_after = dim.lock().unwrap();
 
                 if !component_loader
                     .lock()
@@ -208,15 +211,13 @@ pub fn create_executable_query(
                     clock_reduction::clock_reduce(
                         &mut recipe,
                         None,
-                        &dim,
+                        &mut dim_after,
                         *quotient_index.lock().unwrap(),
                     )?;
                 }
 
-                let dim_before = dim.load(Ordering::SeqCst);
-
                 Ok(Box::new(GetComponentExecutor {
-                    system: recipe.compile(dim_before)?,
+                    system: recipe.compile(*dim_after)?,
                     comp_name: name.clone().unwrap_or("Unnamed".to_string()),
                     component_loader,
                 }))
@@ -226,9 +227,10 @@ pub fn create_executable_query(
                 let mut recipe = get_system_recipe(
                     system,
                     Arc::clone(&component_loader),
-                    &dim,
+                    Arc::clone(&dim),
                     Arc::clone(&quotient_index),
                 );
+                let mut dim_after = dim.lock().unwrap();
 
                 if !component_loader
                     .lock()
@@ -239,18 +241,13 @@ pub fn create_executable_query(
                     clock_reduction::clock_reduce(
                         &mut recipe,
                         None,
-                        &dim,
+                        &mut dim_after,
                         *quotient_index.lock().unwrap(),
                     )?;
                 }
 
-                let dim_before = dim.load(Ordering::SeqCst);
-
                 Ok(Box::new(GetComponentExecutor {
-                    system: pruning::prune_system(
-                        recipe.compile(dim_before)?,
-                        dim.load(Ordering::SeqCst),
-                    ),
+                    system: pruning::prune_system(recipe.compile(*dim_after)?, *dim_after),
                     comp_name: name.clone().unwrap_or("Unnamed".to_string()),
                     component_loader,
                 }))
@@ -398,11 +395,13 @@ impl SystemRecipe {
 pub fn get_system_recipe(
     side: &SystemExpression,
     component_loader: Arc<Mutex<dyn ComponentLoader>>,
-    clock_index: &AtomicUsize,
+    clock_index: Arc<Mutex<ClockIndex>>,
     quotient_index: Arc<Mutex<Option<ClockIndex>>>,
 ) -> Box<SystemRecipe> {
     let left_component_loader = Arc::clone(&component_loader);
     let right_component_loader = Arc::clone(&component_loader);
+    let left_clock_index = Arc::clone(&clock_index);
+    let right_clock_index = Arc::clone(&clock_index);
     let left_quotient_index = Arc::clone(&quotient_index);
     let right_quotient_index = Arc::clone(&quotient_index);
 
@@ -413,7 +412,7 @@ pub fn get_system_recipe(
                     get_system_recipe(
                         left,
                         left_component_loader,
-                        clock_index,
+                        left_clock_index,
                         left_quotient_index,
                     )
                 },
@@ -421,7 +420,7 @@ pub fn get_system_recipe(
                     get_system_recipe(
                         right,
                         right_component_loader,
-                        clock_index,
+                        right_clock_index,
                         right_quotient_index,
                     )
                 },
@@ -432,13 +431,13 @@ pub fn get_system_recipe(
             get_system_recipe(
                 left,
                 left_component_loader,
-                clock_index,
+                left_clock_index,
                 left_quotient_index,
             ),
             get_system_recipe(
                 right,
                 right_component_loader,
-                clock_index,
+                right_clock_index,
                 right_quotient_index,
             ),
         )),
@@ -448,7 +447,7 @@ pub fn get_system_recipe(
                     get_system_recipe(
                         left,
                         left_component_loader,
-                        clock_index,
+                        left_clock_index,
                         left_quotient_index,
                     )
                 },
@@ -456,21 +455,22 @@ pub fn get_system_recipe(
                     get_system_recipe(
                         right,
                         right_component_loader,
-                        clock_index,
+                        right_clock_index,
                         right_quotient_index,
                     )
                 },
             );
 
-            let quotient_index = &mut *quotient_index.lock().unwrap();
+            let quotient_index: &mut Option<ClockIndex> = &mut quotient_index.lock().unwrap();
             let q_index = match quotient_index {
                 Some(q_i) => *q_i,
                 None => {
-                    let clock_index = clock_index.fetch_add(1, Ordering::SeqCst) + 1;
-                    eprintln!("Quotient clock index: {}", clock_index);
-                    quotient_index.replace(clock_index);
+                    let mut clock_index = clock_index.lock().unwrap();
+                    *clock_index += 1;
+                    debug!("Quotient clock index: {}", *clock_index);
 
-                    clock_index
+                    quotient_index.replace(*clock_index);
+                    quotient_index.unwrap()
                 }
             };
 
@@ -478,7 +478,7 @@ pub fn get_system_recipe(
         }
         SystemExpression::Component(name, id) => {
             let mut component = component_loader.lock().unwrap().get_component(name).clone();
-            component.set_clock_indices(clock_index);
+            component.set_clock_indices(&mut clock_index.lock().unwrap());
             component.special_id = id.clone();
             eprintln!("{} Clocks: {:?}", name, component.declarations.clocks);
 
@@ -489,8 +489,6 @@ pub fn get_system_recipe(
 
 /// Module containing a "safer" function for clock reduction, along with some helper functions
 pub(crate) mod clock_reduction {
-    use std::ops::Deref;
-
     use super::*;
 
     /// Function for a "safer" clock reduction that handles both the dimension of the DBM and the quotient index if needed be
@@ -504,25 +502,21 @@ pub(crate) mod clock_reduction {
     pub fn clock_reduce(
         lhs: &mut Box<SystemRecipe>,
         rhs: Option<&mut Box<SystemRecipe>>,
-        dim: &AtomicUsize,
+        dim: &mut ClockIndex,
         quotient_clock: Option<ClockIndex>,
     ) -> Result<(), Box<SystemRecipeFailure>> {
-        let dim_before = dim.load(Ordering::SeqCst);
-        if dim_before == 0 {
+        if *dim == 0 {
             eprintln!("dim was zero");
             return Ok(());
         } else if rhs.is_none() {
             eprintln!("rhs was none");
             return clock_reduce_single(lhs, dim, quotient_clock);
         }
-        eprintln!("dim is {}", dim.load(Ordering::SeqCst));
         let rhs = rhs.unwrap();
 
-        let dim_before = dim.load(Ordering::SeqCst);
-
         let (l_clocks, r_clocks) = filter_redundant_clocks(
-            lhs.clone().compile(dim_before)?.find_redundant_clocks(),
-            rhs.clone().compile(dim_before)?.find_redundant_clocks(),
+            lhs.clone().compile(*dim)?.find_redundant_clocks(),
+            rhs.clone().compile(*dim)?.find_redundant_clocks(),
             quotient_clock,
             lhs.get_components_mut()
                 .iter()
@@ -533,7 +527,7 @@ pub(crate) mod clock_reduction {
 
         eprintln!("Clocks to be reduced: {l_clocks:?} + {r_clocks:?}");
 
-        let removed_clock_count = l_clocks
+        let removed_clock_count: usize = l_clocks
             .iter()
             .chain(r_clocks.iter())
             .map(|c| c.clocks_removed_count())
@@ -541,16 +535,15 @@ pub(crate) mod clock_reduction {
 
         eprintln!("removed_clock_count: {removed_clock_count}");
 
-        eprintln!("{} - {}", dim.load(Ordering::SeqCst), removed_clock_count);
-        let new_dim = dim.fetch_sub(removed_clock_count, Ordering::SeqCst) - removed_clock_count;
-        eprintln!("New dimension: {new_dim}");
+        *dim -= removed_clock_count;
+        eprintln!("New dimension: {dim}");
 
         rhs.reduce_clocks(r_clocks);
         lhs.reduce_clocks(l_clocks);
         compress_component_decls(lhs.get_components_mut(), Some(rhs.get_components_mut()));
         if quotient_clock.is_some() {
-            lhs.change_quotient(new_dim);
-            rhs.change_quotient(new_dim);
+            lhs.change_quotient(*dim);
+            rhs.change_quotient(*dim);
         }
 
         Ok(())
@@ -566,26 +559,19 @@ pub(crate) mod clock_reduction {
     /// returns: Result<(), SystemRecipeFailure>
     fn clock_reduce_single(
         sys: &mut Box<SystemRecipe>,
-        dim: &AtomicUsize,
+        dim: &mut ClockIndex,
         quotient_clock: Option<ClockIndex>,
     ) -> Result<(), Box<SystemRecipeFailure>> {
-        let mut clocks = sys
-            .clone()
-            .compile(dim.load(Ordering::SeqCst))?
-            .find_redundant_clocks();
-        eprintln!(
-            "dim is {} in clock_reduce_single",
-            dim.load(Ordering::SeqCst)
-        );
+        let mut clocks = sys.clone().compile(*dim)?.find_redundant_clocks();
         clocks.retain(|ins| ins.get_clock_index() != quotient_clock.unwrap_or_default());
         eprintln!("Clocks to be reduced: {clocks:?}");
-        let removed_clock_count = clocks.iter().map(|c| c.clocks_removed_count()).sum();
-        let new_dim = dim.fetch_sub(removed_clock_count, Ordering::SeqCst) - removed_clock_count;
-        eprintln!("New dimension: {new_dim}");
+        let removed_clock_count: usize = clocks.iter().map(|c| c.clocks_removed_count()).sum();
+        *dim -= removed_clock_count;
+        eprintln!("New dimension: {dim}");
         sys.reduce_clocks(clocks);
         compress_component_decls(sys.get_components_mut(), None);
         if quotient_clock.is_some() {
-            sys.change_quotient(dim.load(Ordering::SeqCst));
+            sys.change_quotient(*dim);
         }
         Ok(())
     }
@@ -644,7 +630,7 @@ pub(crate) mod clock_reduction {
                 .flat_map(|c| c.declarations.clocks.values_mut()),
         );
         l.sort();
-        let mut index = 1;
+        let index = 1;
         for clock in l {
             if let Some(val) = seen.get(clock) {
                 *clock = *val;
