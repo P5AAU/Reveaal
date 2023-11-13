@@ -1,5 +1,7 @@
 #[cfg(test)]
 mod reachability_partial_states_test {
+    use std::sync::{Arc, Mutex};
+
     use crate::model_objects::{Declarations, Location, LocationType};
     use crate::transition_systems::CompositionType;
     use crate::transition_systems::LocationTree;
@@ -14,7 +16,7 @@ mod reachability_partial_states_test {
                 urgency: "".to_string(),
             },
             &Declarations::empty(),
-            0,
+            Arc::new(Mutex::new(&mut 0)),
         )
     }
     #[test_case(LocationTree::build_any_location_tree(),

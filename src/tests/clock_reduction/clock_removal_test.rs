@@ -6,6 +6,7 @@ pub mod clock_removal_tests {
     use crate::tests::refinement::helper::json_run_query;
     use crate::transition_systems::{CompiledComponent, TransitionSystem};
     use std::collections::HashSet;
+    use std::sync::{Arc, Mutex};
 
     #[test]
     fn test_check_declarations_unused_clocks_are_removed() {
@@ -86,15 +87,26 @@ pub mod clock_removal_tests {
 
         let comp = read_json_component(PATH, "A");
 
-        let mut dim = comp.declarations.clocks.len();
+        let mut dim = Arc::new(Mutex::new(comp.declarations.clocks.len()));
         assert_eq!(
-            dim, 4,
+            *dim.lock().unwrap(),
+            4,
             "As of writing these tests, this component has 4 unused clocks"
         );
 
         let recipe = SystemRecipe::Component(Box::from(comp));
-        clock_reduction::clock_reduce(&mut Box::from(recipe), None, &mut dim, None).unwrap();
-        assert_eq!(dim, 0, "After removing the clocks, the dim should be 0");
+        clock_reduction::clock_reduce(
+            &mut Box::from(recipe),
+            None,
+            dim,
+            Arc::new(Mutex::new(None)),
+        )
+        .unwrap();
+        assert_eq!(
+            *dim.lock().unwrap(),
+            0,
+            "After removing the clocks, the dim should be 0"
+        );
 
         assert!(
             json_run_query(PATH, "consistency: A").is_ok(),
@@ -105,14 +117,15 @@ pub mod clock_removal_tests {
     #[test]
     fn test_no_used_clock_multi() {
         const PATH: &str = "samples/json/AG";
-        let mut dim = 0;
+        let mut dim = Arc::new(Mutex::new(0));
         let mut lhs = read_json_component(PATH, "A");
-        lhs.set_clock_indices(&mut dim);
+        lhs.set_clock_indices(dim);
         let mut rhs = read_json_component(PATH, "A");
-        rhs.set_clock_indices(&mut dim);
+        rhs.set_clock_indices(dim);
 
         assert_eq!(
-            dim, 8,
+            *dim.lock().unwrap(),
+            8,
             "As of writing these tests, these component has 8 unused clocks"
         );
         assert_eq!(
@@ -122,9 +135,18 @@ pub mod clock_removal_tests {
 
         let l = SystemRecipe::Component(Box::from(lhs));
         let r = SystemRecipe::Component(Box::from(rhs));
-        clock_reduction::clock_reduce(&mut Box::from(l), Some(&mut Box::from(r)), &mut dim, None)
-            .unwrap();
-        assert_eq!(dim, 0, "After removing the clocks, the dim should be 0");
+        clock_reduction::clock_reduce(
+            &mut Box::from(l),
+            Some(Box::from(r)),
+            dim,
+            Arc::new(Mutex::new(None)),
+        )
+        .unwrap();
+        assert_eq!(
+            *dim.lock().unwrap(),
+            0,
+            "After removing the clocks, the dim should be 0"
+        );
 
         assert!(
             json_run_query(PATH, "refinement: A <= A").is_ok(),

@@ -7,6 +7,7 @@ use edbm::util::constraints::ClockIndex;
 use edbm::zones::OwnedFederation;
 use std::collections::HashMap;
 use std::fmt;
+use std::sync::{Arc, Mutex};
 
 /// Represents a single transition from taking edges in multiple components
 #[derive(Debug, Clone)]
@@ -29,7 +30,11 @@ impl Transition {
         }
     }
 
-    pub fn from_component_and_edge(comp: &Component, edge: &Edge, dim: ClockIndex) -> Transition {
+    pub fn from_component_and_edge(
+        comp: &Component,
+        edge: &Edge,
+        dim: Arc<Mutex<&mut ClockIndex>>,
+    ) -> Transition {
         //let (comp, edge) = edges;
 
         let target_loc_name = &edge.target_location;
@@ -154,9 +159,9 @@ impl Transition {
 
     pub fn combine_edge_guards(
         edges: &Vec<(&Component, &Edge)>,
-        dim: ClockIndex,
+        dim: Arc<Mutex<&mut ClockIndex>>,
     ) -> OwnedFederation {
-        let mut fed = OwnedFederation::universe(dim);
+        let mut fed = OwnedFederation::universe(**dim.lock().unwrap());
         for (comp, edge) in edges {
             fed = edge.apply_guard(comp.get_declarations(), fed);
         }

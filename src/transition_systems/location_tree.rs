@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+
 use edbm::{util::constraints::ClockIndex, zones::OwnedFederation};
 
 use crate::edge_eval::constraint_applier::apply_constraints_to_state;
@@ -52,7 +54,11 @@ impl LocationTree {
         }
     }
 
-    pub fn simple(location: &Location, decls: &Declarations, dim: ClockIndex) -> Self {
+    pub fn simple(
+        location: &Location,
+        decls: &Declarations,
+        dim: Arc<Mutex<&mut ClockIndex>>,
+    ) -> Self {
         let invariant = if let Some(inv) = &location.invariant {
             let mut fed = OwnedFederation::universe(dim);
             fed = apply_constraints_to_state(inv, decls, fed).unwrap();

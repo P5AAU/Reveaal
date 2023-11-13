@@ -11,10 +11,11 @@ use crate::system::save_component::combine_components;
 use crate::transition_systems::TransitionSystemPtr;
 use crate::transition_systems::{CompiledComponent, LocationTree};
 use std::collections::{HashMap, HashSet};
+use std::sync::{Arc, Mutex};
 
 use super::save_component::PruningStrategy;
 
-pub fn prune_system(ts: TransitionSystemPtr, dim: ClockIndex) -> TransitionSystemPtr {
+pub fn prune_system(ts: TransitionSystemPtr, dim: Arc<Mutex<ClockIndex>>) -> TransitionSystemPtr {
     ts.precheck_sys_rep()
         .expect("Cannot prune transitions system which is not least consistent");
 
@@ -85,7 +86,7 @@ impl PruneContext {
 
 pub fn prune(
     comp: &Component,
-    dim: ClockIndex,
+    dim: Arc<Mutex<ClockIndex>>,
     inputs: HashSet<String>,
     outputs: HashSet<String>,
 ) -> Result<Box<CompiledComponent>, String> {
@@ -489,7 +490,7 @@ fn handle_output(edge: &Edge, context: &mut PruneContext) {
 fn is_immediately_inconsistent(
     location: &Location,
     comp: &Component,
-    dimensions: ClockIndex,
+    dimensions: Arc<Mutex<ClockIndex>>,
 ) -> bool {
     let loc = LocationTree::simple(location, &comp.declarations, dimensions);
 

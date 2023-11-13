@@ -10,6 +10,7 @@ pub mod test {
     use edbm::util::constraints::ClockIndex;
     use std::collections::{HashMap, HashSet};
     use std::path::Path;
+    use std::sync::{Arc, Mutex};
 
     /// Reads and processes a component.
     pub fn read_json_component_and_process(project_path: &str, component_name: &str) -> Component {
@@ -70,7 +71,7 @@ pub mod test {
         path: &Path,
         comp1: &str,
         comp2: &str,
-    ) -> (ClockIndex, SystemRecipe) {
+    ) -> (Arc<Mutex<&mut ClockIndex>>, SystemRecipe) {
         let project_loader =
             JsonProjectLoader::new_loader(path.to_string_lossy().to_string(), DEFAULT_SETTINGS);
 
@@ -83,8 +84,9 @@ pub mod test {
         component1.set_clock_indices(&mut next_clock_index);
         component2.set_clock_indices(&mut next_clock_index);
 
-        let dimensions =
-            component1.declarations.clocks.len() + component2.declarations.clocks.len();
+        let dimensions = Arc::new(Mutex::new(
+            &mut (component1.declarations.clocks.len() + component2.declarations.clocks.len()),
+        ));
 
         let sr_component1 = Box::new(SystemRecipe::Component(Box::new(component1)));
         let sr_component2 = Box::new(SystemRecipe::Component(Box::new(component2)));
@@ -110,8 +112,9 @@ pub mod test {
         component1.set_clock_indices(&mut next_clock_index);
         component2.set_clock_indices(&mut next_clock_index);
 
-        let dimensions =
-            component1.declarations.clocks.len() + component2.declarations.clocks.len();
+        let dimensions = Arc::new(Mutex::new(
+            &mut (component1.declarations.clocks.len() + component2.declarations.clocks.len()),
+        ));
 
         let sr_component1 = Box::new(SystemRecipe::Component(Box::new(component1)));
         let sr_component2 = Box::new(SystemRecipe::Component(Box::new(component2)));

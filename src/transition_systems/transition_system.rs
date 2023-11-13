@@ -247,18 +247,18 @@ pub fn components_to_transition_system(
     components: Vec<Component>,
     composition: &str,
 ) -> TransitionSystemPtr {
-    let mut component_container = &mut ComponentContainer::from(components);
+    let mut component_container = ComponentContainer::from(components);
     component_loader_to_transition_system(Arc::new(Mutex::new(component_container)), composition)
 }
 
 /// Returns a [`TransitionSystemPtr`] equivalent to a `composition` of some components in a [`ComponentLoader`].
 pub fn component_loader_to_transition_system(
-    loader: Arc<Mutex<&mut (dyn ComponentLoader + 'static)>>,
+    loader: Arc<Mutex<dyn ComponentLoader>>,
     composition: &str,
 ) -> TransitionSystemPtr {
-    let mut dimension = 0;
+    let mut dimension = Arc::new(Mutex::new(0));
     let sys_expr = parse_to_system_expr(composition).unwrap();
-    get_system_recipe(&sys_expr, loader, &mut dimension, &mut None)
+    get_system_recipe(&sys_expr, loader, dimension, Arc::new(Mutex::new(None)))
         .compile(dimension)
         .unwrap()
 }

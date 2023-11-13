@@ -23,22 +23,22 @@ pub mod util {
             .unwrap()
             .remove(0);
 
-        let mut dim: ClockIndex = 0;
+        let mut dim: Arc<Mutex<ClockIndex>> = Arc::new(Mutex::new(0));
         let (base_system, new_system) = if let QueryExpression::GetComponent(expr) = &query {
             let mut binding = project_loader.to_comp_loader();
-            let comp_loader = Arc::new(Mutex::new(&mut (*binding)));
+            let comp_loader = Arc::new(Mutex::new(binding));
             (
                 extract_system_rep::get_system_recipe(
                     &expr.system,
                     comp_loader,
-                    &mut dim,
-                    &mut None,
+                    dim,
+                    Arc::new(Mutex::new(None)),
                 ),
                 extract_system_rep::get_system_recipe(
                     &expr.system,
                     comp_loader,
-                    &mut dim,
-                    &mut None,
+                    dim,
+                    Arc::new(Mutex::new(None)),
                 ),
             )
         } else {

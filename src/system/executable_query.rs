@@ -104,7 +104,7 @@ impl ExecutableQuery for ReachabilityExecutor {
 pub struct GetComponentExecutor<'a> {
     pub system: TransitionSystemPtr,
     pub comp_name: String,
-    pub component_loader: Arc<Mutex<&'a mut (dyn ComponentLoader)>>,
+    pub component_loader: Arc<Mutex<&'a (dyn ComponentLoader)>>,
 }
 
 impl<'a> ExecutableQuery for GetComponentExecutor<'a> {
