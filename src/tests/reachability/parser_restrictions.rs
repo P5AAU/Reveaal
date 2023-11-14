@@ -1,8 +1,6 @@
 #[cfg(test)]
 mod reachability_parser_restrictions_test {
-    use crate::{
-        extract_system_rep, parse_queries, xml_parser, JsonProjectLoader, XmlProjectLoader,
-    };
+    use crate::{extract_system_rep, parse_queries, ProjectLoader};
     use test_case::test_case;
 
     //These tests check the parsers validity checks, like an equal amount of parameters
@@ -15,18 +13,14 @@ mod reachability_parser_restrictions_test {
     // The amount of locations given as parameters must be the same as the amount of machines.
     fn query_parser_checks_invalid_amount_of_location_and_machine_args(parser_input: &str) {
         let folder_path = "samples/json/EcdarUniversity".to_string();
-        let mut comp_loader = if xml_parser::is_xml_project(&folder_path) {
-            XmlProjectLoader::new_loader(folder_path, crate::tests::TEST_SETTINGS)
-        } else {
-            ProjectLoader::new(folder_path, crate::tests::TEST_SETTINGS)
-        };
+        let mut comp_loader = ProjectLoader::new(folder_path, crate::tests::TEST_SETTINGS);
         // Make query:
         let q = parse_queries::parse_to_query(parser_input);
         let queries = q.first().unwrap();
 
         // Runs the "validate_reachability" function from extract_system_rep, which we wish to test.
         assert!(matches!(
-            extract_system_rep::create_executable_query(queries, &mut *comp_loader),
+            extract_system_rep::create_executable_query(queries, &mut comp_loader),
             Err(_)
         ));
     }
@@ -37,18 +31,14 @@ mod reachability_parser_restrictions_test {
     // The amount of locations given as parameters must be the same as the amount of machines.
     fn query_parser_checks_valid_amount_of_location_and_machine_args(parser_input: &str) {
         let folder_path = "samples/json/EcdarUniversity".to_string();
-        let mut comp_loader = if xml_parser::is_xml_project(&folder_path) {
-            XmlProjectLoader::new_loader(folder_path, crate::tests::TEST_SETTINGS)
-        } else {
-            ProjectLoader::new(folder_path, crate::tests::TEST_SETTINGS)
-        };
+        let mut comp_loader = ProjectLoader::new(folder_path, crate::tests::TEST_SETTINGS);
         // Make query:
         let q = parse_queries::parse_to_query(parser_input);
         let queries = q.first().unwrap();
 
         // Runs the "validate_reachability" function from extract_system_rep, which we wish to test.
         assert!(matches!(
-            extract_system_rep::create_executable_query(queries, &mut *comp_loader),
+            extract_system_rep::create_executable_query(queries, &mut comp_loader),
             Ok(_)
         ));
     }

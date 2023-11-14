@@ -3,7 +3,7 @@ pub mod clock_removal_tests {
     use crate::data_reader::json_reader::read_json_component;
     use crate::extract_system_rep::{clock_reduction, SystemRecipe};
     use crate::model_objects::Component;
-    use crate::tests::refinement::helper::json_run_query;
+    use crate::tests::refinement::helper::run_query;
     use crate::transition_systems::{CompiledComponent, TransitionSystem};
     use std::collections::HashSet;
 
@@ -99,7 +99,7 @@ pub mod clock_removal_tests {
         assert_eq!(dim, 0, "After removing the clocks, the dim should be 0");
 
         assert!(
-            json_run_query(PATH, "consistency: A").is_ok(),
+            run_query(PATH, "consistency: A").is_ok(),
             "A should be consistent"
         );
     }
@@ -129,7 +129,7 @@ pub mod clock_removal_tests {
         assert_eq!(dim, 0, "After removing the clocks, the dim should be 0");
 
         assert!(
-            json_run_query(PATH, "refinement: A <= A").is_ok(),
+            run_query(PATH, "refinement: A <= A").is_ok(),
             "A should refine itself"
         );
     }

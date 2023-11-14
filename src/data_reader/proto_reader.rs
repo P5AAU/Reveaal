@@ -154,7 +154,7 @@ fn proto_zone_to_owned_federation(
 
 #[cfg(test)]
 mod tests {
-    use crate::{system::specifics::SpecificState, tests::refinement::helper::json_get_system};
+    use crate::{system::specifics::SpecificState, tests::refinement::helper::get_system};
 
     use super::*;
 
@@ -190,7 +190,7 @@ mod tests {
     #[test_case(PATH, "Spec // Researcher // Machine"; "Researcher Machine Spec state")]
     #[test_case(PATH, "Spec // Machine // Administration"; "Machine Administration Spec state")]
     fn initial_state_conversion_test(path: &str, query: &str) {
-        let system = json_get_system(path, query);
+        let system = get_system(path, query);
         let initial_state = system.get_initial_state().unwrap();
         let initial_state2 = convert_to_proto_and_back(&initial_state, &system);
 
@@ -208,7 +208,7 @@ mod tests {
     #[test_case(PATH, "Spec // Researcher // Machine"; "Researcher Machine Spec state")]
     #[test_case(PATH, "Spec // Machine // Administration"; "Machine Administration Spec state")]
     fn next_state_conversion_test(path: &str, query: &str) {
-        let system = json_get_system(path, query);
+        let system = get_system(path, query);
         let initial_state = system.get_initial_state().unwrap();
 
         fn rec_test_next(state: &State, system: &TransitionSystemPtr, depth: usize) {
@@ -233,7 +233,7 @@ mod tests {
 
     #[test]
     fn empty_state_test() {
-        let system = json_get_system(PATH, "Spec // Machine // Administration");
+        let system = get_system(PATH, "Spec // Machine // Administration");
         let mut initial_state = system.get_initial_state().unwrap();
         initial_state.update_zone(|zone| zone.set_empty());
         let initial_state2 = convert_to_proto_and_back(&initial_state, &system);

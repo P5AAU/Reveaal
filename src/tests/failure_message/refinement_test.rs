@@ -5,14 +5,14 @@ mod test {
         system::query_failures::{
             ActionFailure, QueryResult, RefinementFailure, RefinementPrecondition,
         },
-        tests::refinement::helper::json_run_query,
+        tests::refinement::helper::run_query,
     };
 
     const PATH: &str = "samples/json/RefinementTests";
 
     #[test]
     fn not_empty_result_test() {
-        let actual = json_run_query(PATH, "refinement: A <= B").unwrap();
+        let actual = run_query(PATH, "refinement: A <= B").unwrap();
         assert!(matches!(
             actual,
             QueryResult::Refinement(Err(RefinementFailure::CannotMatch { .. }))
@@ -21,7 +21,7 @@ mod test {
 
     #[test]
     fn empty_transition2s_test() {
-        let actual = json_run_query(PATH, "refinement: A <= A2").unwrap();
+        let actual = run_query(PATH, "refinement: A <= A2").unwrap();
         assert!(matches!(
             actual,
             QueryResult::Refinement(Err(RefinementFailure::CannotMatch { .. }))
@@ -30,7 +30,7 @@ mod test {
 
     #[test]
     fn cuts_delay_solutions_test() {
-        let actual = json_run_query(PATH, "refinement: A2 <= B2").unwrap();
+        let actual = run_query(PATH, "refinement: A2 <= B2").unwrap();
         assert!(matches!(
             actual,
             QueryResult::Refinement(Err(RefinementFailure::CutsDelaySolutions { .. }))
@@ -39,7 +39,7 @@ mod test {
 
     #[test]
     fn initial_state_test() {
-        let actual = json_run_query(PATH, "refinement: C <= D").unwrap();
+        let actual = run_query(PATH, "refinement: C <= D").unwrap();
         assert!(matches!(
             actual,
             QueryResult::Refinement(Err(RefinementFailure::Precondition(
@@ -50,7 +50,7 @@ mod test {
 
     #[test]
     fn not_disjoint_and_not_subset_test() {
-        let actual = json_run_query(
+        let actual = run_query(
             PATH,
             "refinement: notDisjointAndNotSubset1 <= notDisjointAndNotSubset2",
         )
@@ -65,7 +65,7 @@ mod test {
 
     #[test]
     fn not_subset_test() {
-        let actual = json_run_query(PATH, "refinement: notSubset1 <= notSubset2")
+        let actual = run_query(PATH, "refinement: notSubset1 <= notSubset2")
             .ok()
             .unwrap();
         assert!(matches!(
@@ -78,7 +78,7 @@ mod test {
 
     #[test]
     fn not_disjoint_test() {
-        let actual = json_run_query(PATH, "refinement: disJoint2 <= disJoint1").unwrap();
+        let actual = run_query(PATH, "refinement: disJoint2 <= disJoint1").unwrap();
         assert!(matches!(
             actual,
             QueryResult::Refinement(Err(RefinementFailure::Precondition(

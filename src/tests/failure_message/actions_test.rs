@@ -7,7 +7,7 @@ mod test {
         RefinementPrecondition,
     };
     use crate::system::specifics::SpecificLocation;
-    use crate::tests::refinement::helper::json_run_query;
+    use crate::tests::refinement::helper::run_query;
     const PATH: &str = "samples/json/Actions";
 
     #[test]
@@ -18,7 +18,7 @@ mod test {
             state: actual_state,
             action: actual_action,
             system: actual_system,
-        })) = json_run_query(PATH, "determinism: NonDeterministic1").unwrap()
+        })) = run_query(PATH, "determinism: NonDeterministic1").unwrap()
         {
             let actual_location = actual_state.locations;
             assert_eq!(
@@ -37,7 +37,7 @@ mod test {
         if let QueryResult::Consistency(Err(ConsistencyFailure::InconsistentFrom {
             state: actual_state,
             system: actual_system,
-        })) = json_run_query(PATH, "consistency: NonConsistent").unwrap()
+        })) = run_query(PATH, "consistency: NonConsistent").unwrap()
         {
             let actual_location = actual_state.locations;
             assert_eq!((expected_location), (actual_location));
@@ -60,7 +60,7 @@ mod test {
                 }),
                 _,
             ),
-        ))) = json_run_query(PATH, "refinement: NonDeterministic1 <= NonDeterministic2").unwrap()
+        ))) = run_query(PATH, "refinement: NonDeterministic1 <= NonDeterministic2").unwrap()
         {
             let actual_location = actual_state.locations;
             assert_eq!(
@@ -84,7 +84,7 @@ mod test {
                 },
                 _,
             ),
-        ))) = json_run_query(PATH, "refinement: NonConsistent <= CorrectComponent").unwrap()
+        ))) = run_query(PATH, "refinement: NonConsistent <= CorrectComponent").unwrap()
         {
             let actual_location = actual_state.locations;
             assert_eq!((expected_location), (actual_location));
