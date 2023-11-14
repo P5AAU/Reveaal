@@ -16,7 +16,7 @@ use crate::transition_systems::CompositionType;
 
 use super::{LocationTree, TransitionSystem, TransitionSystemPtr};
 
-pub(super) trait ComposedTransitionSystem: DynClone {
+pub(super) trait ComposedTransitionSystem: DynClone + Sync {
     fn next_transitions(&self, location: &LocationTree, action: &str) -> Vec<Transition>;
 
     fn check_local_consistency(&self) -> ConsistencyResult;

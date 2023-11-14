@@ -57,7 +57,7 @@ impl<'a> ComponentInfoTree<'a> {
     }
 }
 
-pub trait TransitionSystem: DynClone {
+pub trait TransitionSystem: DynClone + Sync {
     fn get_local_max_bounds(&self, loc: &LocationTree) -> Bounds;
     fn get_dim(&self) -> ClockIndex;
 

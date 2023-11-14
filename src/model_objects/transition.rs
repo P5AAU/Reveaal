@@ -17,6 +17,7 @@ pub struct Transition {
     pub target_locations: LocationTree,
     pub updates: Vec<CompiledUpdate>,
 }
+unsafe impl Sync for Transition {}
 
 impl Transition {
     /// Create a new transition not based on an edge with no identifier

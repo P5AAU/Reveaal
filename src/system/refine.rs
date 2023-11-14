@@ -7,6 +7,7 @@ use crate::model_objects::{
 use crate::system::query_failures::RefinementFailure;
 use crate::transition_systems::{LocationTree, TransitionSystemPtr};
 use std::collections::HashSet;
+use std::sync::{Arc, Mutex, MutexGuard};
 
 use super::query_failures::{ActionFailure, RefinementPrecondition, RefinementResult};
 
@@ -316,24 +317,35 @@ fn try_create_new_state_pairs(
     context: &mut RefinementContext,
     is_state1: bool,
 ) -> BuildResult {
-    for transition1 in transitions1 {
-        for transition2 in transitions2 {
-            if let BuildResult::Failure =
-                build_state_pair(transition1, transition2, curr_pair, context, is_state1)
-            {
-                return BuildResult::Failure;
+    let context_mutex = &Arc::new(Mutex::new(context));
+    let failed = Arc::new(Mutex::new(false));
+    rayon::scope(|s| {
+        for transition1 in transitions1 {
+            for transition2 in transitions2 {
+                let transition1_mutex = Arc::new(Mutex::new(transition1));
+                let transition2_mutex = Arc::new(Mutex::new(transition2));
+                s.spawn(|_| {
+                    if let BuildResult::Failure = build_state_pair(
+                        transition1_mutex,
+                        transition2_mutex,
+                        curr_pair,
+                        context_mutex,
+                        is_state1,
+                    ) {
+                        *failed.lock().unwrap() = true;
+                    }
+                });
             }
         }
-    }
-
+    });
     BuildResult::Success
 }
 
 fn build_state_pair(
-    transition1: &Transition,
-    transition2: &Transition,
+    transition1: Arc<Mutex<&Transition>>,
+    transition2: Arc<Mutex<&Transition>>,
     curr_pair: &StatePair,
-    context: &mut RefinementContext,
+    context: &Arc<Mutex<&mut RefinementContext>>,
     is_state1: bool,
 ) -> BuildResult {
     //Creates new state pair
@@ -344,9 +356,9 @@ fn build_state_pair(
     let (locations1, locations2) = new_sp.get_mut_states(is_state1);
 
     //Applies the left side guards and checks if zone is valid
-    new_sp_zone = transition1.apply_guards(new_sp_zone);
+    new_sp_zone = transition1.lock().unwrap().apply_guards(new_sp_zone);
     //Applies the right side guards and checks if zone is valid
-    new_sp_zone = transition2.apply_guards(new_sp_zone);
+    new_sp_zone = transition2.lock().unwrap().apply_guards(new_sp_zone);
 
     // Continue to the next transition pair if the zone is empty
     if new_sp_zone.is_empty() {
@@ -354,16 +366,16 @@ fn build_state_pair(
     }
 
     //Apply updates on both sides
-    new_sp_zone = transition1.apply_updates(new_sp_zone);
-    new_sp_zone = transition2.apply_updates(new_sp_zone);
+    new_sp_zone = transition1.lock().unwrap().apply_updates(new_sp_zone);
+    new_sp_zone = transition2.lock().unwrap().apply_updates(new_sp_zone);
 
     //Perform a delay on the zone after the updates were applied
     new_sp_zone = new_sp_zone.up();
 
     //Update locations in states
 
-    transition1.move_locations(locations1);
-    transition2.move_locations(locations2);
+    transition1.lock().unwrap().move_locations(locations1);
+    transition2.lock().unwrap().move_locations(locations2);
 
     // Apply invariants on the left side of relation
     let (left_loc, right_loc) = if is_state1 {
@@ -397,12 +409,14 @@ fn build_state_pair(
 
     new_sp.set_zone(new_sp_zone);
 
-    new_sp.extrapolate_max_bounds(context.sys1, context.sys2);
+    new_sp.extrapolate_max_bounds(context.lock().unwrap().sys1, context.lock().unwrap().sys2);
 
-    if !context.passed_list.has(&new_sp) && !context.waiting_list.has(&new_sp) {
+    if !context.lock().unwrap().passed_list.has(&new_sp)
+        && !context.lock().unwrap().waiting_list.has(&new_sp)
+    {
         debug!("New state {}", new_sp);
 
-        context.waiting_list.put(new_sp);
+        context.lock().unwrap().waiting_list.put(new_sp);
     }
 
     BuildResult::Success
