@@ -7,9 +7,7 @@ pub mod reachability_test_helper_functions {
     use crate::model_objects::expressions::SystemExpression;
     use crate::parse_queries::parse_to_state_expr;
     use crate::transition_systems::TransitionSystem;
-    use crate::xml_parser;
-    use crate::JsonProjectLoader;
-    use crate::XmlProjectLoader;
+    use crate::ProjectLoader;
 
     /// Helper function which converts a string to an option<box<BoolExpression>> by replacing ',' with "&&" and using the invariant parser.
     pub fn string_to_state_expr(string: &str) -> StateExpression {
@@ -21,12 +19,8 @@ pub mod reachability_test_helper_functions {
         model: SystemExpression,
         folder_path: &str,
     ) -> (Box<SystemRecipe>, Box<dyn TransitionSystem>) {
-        let mut comp_loader = if xml_parser::is_xml_project(folder_path) {
-            XmlProjectLoader::new_loader(folder_path, crate::tests::TEST_SETTINGS)
-        } else {
-            JsonProjectLoader::new_loader(folder_path, crate::tests::TEST_SETTINGS)
-        }
-        .to_comp_loader();
+        let mut comp_loader =
+            Box::new(ProjectLoader::new(folder_path, crate::tests::TEST_SETTINGS));
         let mut dim: ClockIndex = 0;
         let mut quotient_index = None;
         let machine =

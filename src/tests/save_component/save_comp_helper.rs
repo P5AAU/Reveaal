@@ -1,6 +1,5 @@
 #[cfg(test)]
 pub mod util {
-    use crate::data_reader::component_loader::JsonProjectLoader;
     use crate::data_reader::parse_queries;
     use crate::model_objects::expressions::QueryExpression;
     use crate::system::extract_system_rep;
@@ -9,11 +8,12 @@ pub mod util {
     use crate::system::refine;
     use crate::system::save_component::combine_components;
     use crate::system::save_component::PruningStrategy;
+    use crate::ProjectLoader;
     use edbm::util::constraints::ClockIndex;
 
     pub fn json_reconstructed_component_refines_base_self(input_path: &str, system: &str) {
         let project_loader =
-            JsonProjectLoader::new_loader(String::from(input_path), crate::tests::TEST_SETTINGS);
+            ProjectLoader::new(String::from(input_path), crate::tests::TEST_SETTINGS);
 
         //This query is not executed but simply used to extract an UncachedSystem so the tests can just give system expressions
         let str_query = format!("get-component: {} save-as test", system);
@@ -23,18 +23,18 @@ pub mod util {
 
         let mut dim: ClockIndex = 0;
         let (base_system, new_system) = if let QueryExpression::GetComponent(expr) = &query {
-            let mut comp_loader = project_loader.to_comp_loader();
+            let mut comp_loader = project_loader;
             (
                 extract_system_rep::get_system_recipe(
                     &expr.system,
-                    &mut *comp_loader,
+                    &mut comp_loader,
                     &mut dim,
                     &mut None,
                 )
                 .unwrap(),
                 extract_system_rep::get_system_recipe(
                     &expr.system,
-                    &mut *comp_loader,
+                    &mut comp_loader,
                     &mut dim,
                     &mut None,
                 )

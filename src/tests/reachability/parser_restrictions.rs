@@ -18,9 +18,8 @@ mod reachability_parser_restrictions_test {
         let mut comp_loader = if xml_parser::is_xml_project(&folder_path) {
             XmlProjectLoader::new_loader(folder_path, crate::tests::TEST_SETTINGS)
         } else {
-            JsonProjectLoader::new_loader(folder_path, crate::tests::TEST_SETTINGS)
-        }
-        .to_comp_loader();
+            ProjectLoader::new(folder_path, crate::tests::TEST_SETTINGS)
+        };
         // Make query:
         let q = parse_queries::parse_to_query(parser_input);
         let queries = q.first().unwrap();
@@ -41,9 +40,8 @@ mod reachability_parser_restrictions_test {
         let mut comp_loader = if xml_parser::is_xml_project(&folder_path) {
             XmlProjectLoader::new_loader(folder_path, crate::tests::TEST_SETTINGS)
         } else {
-            JsonProjectLoader::new_loader(folder_path, crate::tests::TEST_SETTINGS)
-        }
-        .to_comp_loader();
+            ProjectLoader::new(folder_path, crate::tests::TEST_SETTINGS)
+        };
         // Make query:
         let q = parse_queries::parse_to_query(parser_input);
         let queries = q.first().unwrap();

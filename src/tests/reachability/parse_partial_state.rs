@@ -5,7 +5,7 @@ mod reachability_parse_partial_state {
         model_objects::expressions::SystemExpression,
         parse_queries, system,
         tests::reachability::helper_functions::reachability_test_helper_functions,
-        JsonProjectLoader,
+        ProjectLoader,
     };
     use test_case::test_case;
 
@@ -46,13 +46,12 @@ mod reachability_parse_partial_state {
     "partial start state and complex composition")]
     fn query_parser_reject_partial_start(parser_input: &str) {
         let mut comp_loader =
-            JsonProjectLoader::new_loader(String::from(FOLDER_PATH), crate::tests::TEST_SETTINGS)
-                .to_comp_loader();
+            ProjectLoader::new(String::from(FOLDER_PATH), crate::tests::TEST_SETTINGS);
         // Make query:
         let q = parse_queries::parse_to_query(parser_input);
         let queries = q.first().unwrap();
 
-        let result = extract_system_rep::create_executable_query(queries, &mut *comp_loader);
+        let result = extract_system_rep::create_executable_query(queries, &mut comp_loader);
         if let Err(e) = result {
             assert_eq!(
                 e,

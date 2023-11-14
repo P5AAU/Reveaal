@@ -6,7 +6,7 @@ pub mod test {
     use crate::system::input_enabler;
     use crate::transition_systems::transition_system::ClockReductionInstruction;
     use crate::transition_systems::TransitionSystemPtr;
-    use crate::{JsonProjectLoader, DEFAULT_SETTINGS};
+    use crate::{ComponentLoader, ProjectLoader, DEFAULT_SETTINGS};
     use edbm::util::constraints::ClockIndex;
     use std::collections::{HashMap, HashSet};
     use std::path::Path;
@@ -71,14 +71,12 @@ pub mod test {
         comp1: &str,
         comp2: &str,
     ) -> (ClockIndex, SystemRecipe) {
-        let project_loader =
-            JsonProjectLoader::new_loader(path.to_string_lossy().to_string(), DEFAULT_SETTINGS);
-
-        let mut component_loader = project_loader.to_comp_loader();
+        let mut project_loader =
+            ProjectLoader::new(path.to_string_lossy().to_string(), DEFAULT_SETTINGS);
 
         let mut next_clock_index: usize = 0;
-        let mut component1 = component_loader.get_component(comp1).unwrap().clone();
-        let mut component2 = component_loader.get_component(comp2).unwrap().clone();
+        let mut component1 = project_loader.get_component(comp1).unwrap().clone();
+        let mut component2 = project_loader.get_component(comp2).unwrap().clone();
 
         component1.set_clock_indices(&mut next_clock_index);
         component2.set_clock_indices(&mut next_clock_index);
@@ -98,14 +96,12 @@ pub mod test {
         comp1: &str,
         comp2: &str,
     ) -> TransitionSystemPtr {
-        let project_loader =
-            JsonProjectLoader::new_loader(path.to_string_lossy().to_string(), DEFAULT_SETTINGS);
-
-        let mut component_loader = project_loader.to_comp_loader();
+        let mut project_loader =
+            ProjectLoader::new(path.to_string_lossy().to_string(), DEFAULT_SETTINGS);
 
         let mut next_clock_index: usize = 0;
-        let mut component1 = component_loader.get_component(comp1).unwrap().clone();
-        let mut component2 = component_loader.get_component(comp2).unwrap().clone();
+        let mut component1 = project_loader.get_component(comp1).unwrap().clone();
+        let mut component2 = project_loader.get_component(comp2).unwrap().clone();
 
         component1.set_clock_indices(&mut next_clock_index);
         component2.set_clock_indices(&mut next_clock_index);
