@@ -214,7 +214,7 @@ impl ProjectLoader {
         &self.queries
     }
 
-    fn is_xml_project<P: AsRef<Path>>(project_path: P) -> bool {
+    fn is_path_xml_project<P: AsRef<Path>>(project_path: P) -> bool {
         project_path.as_ref().ends_with(".xml")
             || !project_path
                 .as_ref()
@@ -222,8 +222,12 @@ impl ProjectLoader {
                 .exists()
     }
 
+    fn is_xml_project(&self) -> bool {
+        Self::is_path_xml_project(&self.project_path)
+    }
+
     pub fn new<P: AsRef<Path>>(project_path: P, settings: Settings) -> ProjectLoader {
-        if Self::is_xml_project(&project_path) {
+        if Self::is_path_xml_project(&project_path) {
             let (comps, system_declarations, queries) = parse_xml_from_file(&project_path);
             let mut map = HashMap::<String, Component>::new();
             for mut component in comps {
@@ -293,7 +297,10 @@ impl ComponentLoader for ProjectLoader {
     }
 
     fn save_component(&mut self, component: Component) {
-        // panic!("Saving components is not supported for XML projects")
+        if self.is_xml_project() {
+            panic!("Saving components is not supported for XML projects")
+        }
+
         component_to_json_file(&self.project_path, &component);
         self.loaded_components
             .insert(component.name.clone(), component);
