@@ -34,12 +34,12 @@ pub fn run_query(path: &str, query: &str) -> Result<QueryResult, ExecutableQuery
         comment: "".to_string(),
     };
 
-    let query = create_executable_query(&q, &mut project_loader)?;
+    let query = create_executable_query(&q, project_loader)?;
 
     Ok(query.execute())
 }
 
 pub fn get_system(path: &str, comp: &str) -> TransitionSystemPtr {
     let mut project_loader = ProjectLoader::new(String::from(path), crate::tests::TEST_SETTINGS);
-    component_loader_to_transition_system(&mut project_loader, comp)
+    component_loader_to_transition_system(project_loader, comp)
 }

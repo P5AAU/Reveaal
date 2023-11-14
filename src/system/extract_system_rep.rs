@@ -6,7 +6,10 @@ use crate::system::executable_query::{
     ReachabilityExecutor, RefinementExecutor,
 };
 use crate::system::extract_state::get_state;
+use crate::tests::system_recipe::quotient;
 use std::collections::HashMap;
+use std::ops::Deref;
+use std::sync::{Arc, Mutex};
 
 use crate::transition_systems::{
     CompiledComponent, Composition, Conjunction, Quotient, TransitionSystemPtr,
@@ -40,23 +43,50 @@ impl<T: Into<String>> From<T> for ExecutableQueryError {
 
 /// This function fetches the appropriate components based on the structure of the query and makes the enum structure match the query
 /// this function also handles setting up the correct indices for clocks based on the amount of components in each system representation
-pub fn create_executable_query<'a>(
+pub fn create_executable_query(
     full_query: &Query,
-    component_loader: &'a mut (dyn ComponentLoader + 'static),
-) -> Result<Box<dyn ExecutableQuery + 'a>, ExecutableQueryError> {
-    let mut dim: ClockIndex = 0;
+    component_loader: impl ComponentLoader,
+) -> Result<Box<dyn ExecutableQuery>, ExecutableQueryError> {
+    let component_loader = Arc::new(Mutex::new(component_loader));
+    let dim = Arc::new(Mutex::new(0));
 
     if let Some(query) = full_query.get_query() {
         match query {
             QueryExpression::Refinement(left_side, right_side) => {
-                let mut quotient_index = None;
+                let quotient_index = Arc::new(Mutex::new(None));
+                let left_quotient_index = quotient_index.clone();
+                let right_quotient_index = quotient_index.clone();
 
-                let mut left =
-                    get_system_recipe(left_side, component_loader, &mut dim, &mut quotient_index)
-                        .unwrap();
-                let mut right =
-                    get_system_recipe(right_side, component_loader, &mut dim, &mut quotient_index)
-                        .unwrap();
+                let left_dim = dim.clone();
+                let right_dim = dim.clone();
+
+                let left_component_loader = component_loader.clone();
+                let right_component_loader = component_loader.clone();
+
+                let (mut left, mut right) = rayon::join(
+                    move || {
+                        get_system_recipe(
+                            left_side,
+                            left_component_loader,
+                            left_dim,
+                            left_quotient_index,
+                        )
+                        .unwrap()
+                    },
+                    move || {
+                        get_system_recipe(
+                            right_side,
+                            right_component_loader,
+                            right_dim,
+                            right_quotient_index,
+                        )
+                        .unwrap()
+                    },
+                );
+
+                let component_loader = component_loader.lock().unwrap();
+                let mut dim: ClockIndex = *dim.lock().unwrap();
+                let quotient_index: Option<ClockIndex> = *quotient_index.lock().unwrap();
 
                 if !component_loader.get_settings().disable_clock_reduction {
                     clock_reduction::clock_reduce(
@@ -76,7 +106,9 @@ pub fn create_executable_query<'a>(
             }
             QueryExpression::Reachability { system, from, to } => {
                 let machine =
-                    get_system_recipe(system, component_loader, &mut dim, &mut None).unwrap();
+                    get_system_recipe(system, component_loader, dim, Arc::new(Mutex::new(None)))
+                        .unwrap();
+                let dim = *dim.lock().unwrap();
                 let transition_system = machine.clone().compile(dim)?;
 
                 // Assign the start state to the initial state of the transition system if no start state is given by the query
@@ -104,14 +136,14 @@ pub fn create_executable_query<'a>(
                 }))
             }
             QueryExpression::Consistency(query_expression) => {
-                let mut quotient_index = None;
-                let mut recipe = get_system_recipe(
-                    query_expression,
-                    component_loader,
-                    &mut dim,
-                    &mut quotient_index,
-                )
-                .unwrap();
+                let quotient_index = Arc::new(Mutex::new(None));
+                let mut recipe =
+                    get_system_recipe(query_expression, component_loader, dim, quotient_index)
+                        .unwrap();
+
+                let component_loader = component_loader.lock().unwrap();
+                let dim = *dim.lock().unwrap();
+                let quotient_index = *quotient_index.lock().unwrap();
 
                 if !component_loader.get_settings().disable_clock_reduction {
                     clock_reduction::clock_reduce(&mut recipe, None, &mut dim, quotient_index)?;
@@ -122,25 +154,21 @@ pub fn create_executable_query<'a>(
                 }))
             }
             QueryExpression::Syntax(query_expression) => {
-                let mut quotient_index = None;
-                let recipe = get_system_recipe(
-                    query_expression,
-                    component_loader,
-                    &mut dim,
-                    &mut quotient_index,
-                );
+                let mut quotient_index = Arc::new(Mutex::new(None));
+                let recipe =
+                    get_system_recipe(query_expression, component_loader, dim, quotient_index);
 
                 Ok(Box::new(SyntaxExecutor { result: recipe }))
             }
             QueryExpression::Determinism(query_expression) => {
-                let mut quotient_index = None;
-                let mut recipe = get_system_recipe(
-                    query_expression,
-                    component_loader,
-                    &mut dim,
-                    &mut quotient_index,
-                )
-                .unwrap();
+                let mut quotient_index = Arc::new(Mutex::new(None));
+                let mut recipe =
+                    get_system_recipe(query_expression, component_loader, dim, quotient_index)
+                        .unwrap();
+
+                let component_loader = component_loader.lock().unwrap();
+                let dim = *dim.lock().unwrap();
+                let quotient_index = *quotient_index.lock().unwrap();
 
                 if !component_loader.get_settings().disable_clock_reduction {
                     clock_reduction::clock_reduce(&mut recipe, None, &mut dim, quotient_index)?;
@@ -151,10 +179,13 @@ pub fn create_executable_query<'a>(
                 }))
             }
             QueryExpression::GetComponent(SaveExpression { system, name }) => {
-                let mut quotient_index = None;
+                let mut quotient_index = Arc::new(Mutex::new(None));
                 let mut recipe =
-                    get_system_recipe(system, component_loader, &mut dim, &mut quotient_index)
-                        .unwrap();
+                    get_system_recipe(system, component_loader, dim, quotient_index).unwrap();
+
+                let component_loader = component_loader.lock().unwrap();
+                let dim = *dim.lock().unwrap();
+                let quotient_index = *quotient_index.lock().unwrap();
 
                 if !component_loader.get_settings().disable_clock_reduction {
                     clock_reduction::clock_reduce(&mut recipe, None, &mut dim, quotient_index)?;
@@ -163,14 +194,17 @@ pub fn create_executable_query<'a>(
                 Ok(Box::new(GetComponentExecutor {
                     system: recipe.compile(dim)?,
                     comp_name: name.clone().unwrap_or("Unnamed".to_string()),
-                    component_loader,
+                    component_loader: &mut *component_loader,
                 }))
             }
             QueryExpression::Prune(SaveExpression { system, name }) => {
-                let mut quotient_index = None;
+                let mut quotient_index = Arc::new(Mutex::new(None));
                 let mut recipe =
-                    get_system_recipe(system, component_loader, &mut dim, &mut quotient_index)
-                        .unwrap();
+                    get_system_recipe(system, component_loader, dim, quotient_index).unwrap();
+
+                let component_loader = component_loader.lock().unwrap();
+                let dim = *dim.lock().unwrap();
+                let quotient_index = *quotient_index.lock().unwrap();
 
                 if !component_loader.get_settings().disable_clock_reduction {
                     clock_reduction::clock_reduce(&mut recipe, None, &mut dim, quotient_index)?;
@@ -179,7 +213,7 @@ pub fn create_executable_query<'a>(
                 Ok(Box::new(GetComponentExecutor {
                     system: pruning::prune_system(recipe.compile(dim)?, dim),
                     comp_name: name.clone().unwrap_or("Unnamed".to_string()),
-                    component_loader,
+                    component_loader: &mut *component_loader,
                 }))
             }
 
@@ -324,9 +358,9 @@ impl SystemRecipe {
 
 pub fn get_system_recipe(
     side: &SystemExpression,
-    component_loader: &mut dyn ComponentLoader,
-    clock_index: &mut ClockIndex,
-    quotient_index: &mut Option<ClockIndex>,
+    component_loader: Arc<Mutex<dyn ComponentLoader>>,
+    clock_index: Arc<Mutex<ClockIndex>>,
+    quotient_index: Arc<Mutex<Option<ClockIndex>>>,
 ) -> Result<Box<SystemRecipe>, SyntaxResult> {
     match side {
         SystemExpression::Composition(left, right) => Ok(Box::new(SystemRecipe::Composition(
@@ -341,8 +375,11 @@ pub fn get_system_recipe(
             let left = get_system_recipe(left, component_loader, clock_index, quotient_index)?;
             let right = get_system_recipe(right, component_loader, clock_index, quotient_index)?;
 
-            let q_index = match quotient_index {
-                Some(q_i) => *q_i,
+            let mut clock_index = clock_index.lock().unwrap();
+            let mut quotient_index = quotient_index.lock().unwrap();
+
+            let q_index = match *quotient_index {
+                Some(q_i) => q_i,
                 None => {
                     *clock_index += 1;
                     debug!("Quotient clock index: {}", *clock_index);
@@ -355,8 +392,10 @@ pub fn get_system_recipe(
             Ok(Box::new(SystemRecipe::Quotient(left, right, q_index)))
         }
         SystemExpression::Component(name, id) => {
+            let mut component_loader = component_loader.lock().unwrap();
             let mut component = component_loader.get_component(name)?.clone();
-            component.set_clock_indices(clock_index);
+            let mut clock_index = clock_index.lock().unwrap();
+            component.set_clock_indices(&mut *clock_index);
             component.special_id = id.clone();
             debug!("{} Clocks: {:?}", name, component.declarations.clocks);
 

@@ -1,4 +1,7 @@
 pub mod reachability_test_helper_functions {
+    use std::sync::Arc;
+    use std::sync::Mutex;
+
     use edbm::util::constraints::ClockIndex;
 
     use crate::extract_system_rep::get_system_recipe;
@@ -19,12 +22,17 @@ pub mod reachability_test_helper_functions {
         model: SystemExpression,
         folder_path: &str,
     ) -> (Box<SystemRecipe>, Box<dyn TransitionSystem>) {
-        let mut comp_loader =
-            Box::new(ProjectLoader::new(folder_path, crate::tests::TEST_SETTINGS));
-        let mut dim: ClockIndex = 0;
-        let mut quotient_index = None;
-        let machine =
-            get_system_recipe(&model, &mut (*comp_loader), &mut dim, &mut quotient_index).unwrap();
+        let comp_loader = ProjectLoader::new(folder_path, crate::tests::TEST_SETTINGS);
+        let dim = Arc::new(Mutex::new(0));
+        let quotient_index = Arc::new(Mutex::new(None));
+        let machine = get_system_recipe(
+            &model,
+            Arc::new(Mutex::new(comp_loader)),
+            Arc::clone(&dim),
+            quotient_index,
+        )
+        .unwrap();
+        let dim = *dim.lock().unwrap();
         //TODO:: - unwrap might not be the best way to handle this
         let system = machine.clone().compile(dim).unwrap();
         (machine, system)

@@ -15,6 +15,7 @@ use std::collections::hash_map::Entry;
 use std::collections::vec_deque::VecDeque;
 use std::collections::{hash_set::HashSet, HashMap};
 use std::hash::Hash;
+use std::sync::{Arc, Mutex};
 
 pub type TransitionSystemPtr = Box<dyn TransitionSystem>;
 pub type Action = String;
@@ -247,20 +248,25 @@ pub fn components_to_transition_system(
     composition: &str,
 ) -> TransitionSystemPtr {
     let mut component_container = ComponentContainer::from(components);
-    component_loader_to_transition_system(&mut component_container, composition)
+    component_loader_to_transition_system(component_container, composition)
 }
 
 /// Returns a [`TransitionSystemPtr`] equivalent to a `composition` of some components in a [`ComponentLoader`].
-pub fn component_loader_to_transition_system(
-    loader: &mut dyn ComponentLoader,
+pub fn component_loader_to_transition_system<T: ComponentLoader + Sized>(
+    loader: T,
     composition: &str,
 ) -> TransitionSystemPtr {
-    let mut dimension = 0;
+    let mut dimension = Arc::new(Mutex::new(0));
     let sys_expr = parse_to_system_expr(composition).unwrap();
-    get_system_recipe(&sys_expr, loader, &mut dimension, &mut None)
-        .unwrap()
-        .compile(dimension)
-        .unwrap()
+    get_system_recipe(
+        &sys_expr,
+        Arc::new(Mutex::new(loader)),
+        Arc::clone(&dimension),
+        Arc::new(Mutex::new(None)),
+    )
+    .unwrap()
+    .compile(*dimension.lock().unwrap())
+    .unwrap()
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]

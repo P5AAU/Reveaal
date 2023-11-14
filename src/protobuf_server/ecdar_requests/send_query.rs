@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+
 use crate::data_reader::component_loader::{ComponentContainer, ModelCache};
 use crate::data_reader::json_writer::component_to_json;
 use crate::data_reader::parse_queries;
@@ -74,7 +76,7 @@ fn send_query(
 
     model.set_settings(query_request.settings.unwrap_or(crate::DEFAULT_SETTINGS));
 
-    match extract_system_rep::create_executable_query(&query, &mut model) {
+    match extract_system_rep::create_executable_query(&query, model) {
         Ok(query) => {
             let result = query.execute();
             Ok(QueryResponse {
