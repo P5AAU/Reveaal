@@ -108,8 +108,7 @@ pub fn create_executable_query(
                     Arc::clone(&dim),
                     Arc::new(Mutex::new(None)),
                 );
-                let dim_before = dim.lock().unwrap();
-                let transition_system = machine.clone().compile(*dim_before)?;
+                let transition_system = machine.clone().compile(*dim.lock().unwrap())?;
 
                 // Assign the start state to the initial state of the transition system if no start state is given by the query
                 let start_state: State = if let Some(state) = from.as_ref() {

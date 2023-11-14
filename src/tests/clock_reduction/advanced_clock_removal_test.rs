@@ -10,13 +10,11 @@ pub mod test {
 
     #[test]
     fn test_advanced_clock_removal() {
-        let (dimensions, system_recipe) = get_conjunction_system_recipe(
+        let (mut dimensions, system_recipe) = get_conjunction_system_recipe(
             &Path::new(ADVANCED_CLOCK_REDUCTION_PATH).join("Conjunction/Example1"),
             "Component1",
             "Component2",
         );
-
-        let mut dimensions = dimensions;
 
         let mut system_recipe_copy = Box::new(system_recipe);
 

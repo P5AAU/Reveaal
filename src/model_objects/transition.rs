@@ -45,14 +45,6 @@ impl Transition {
             );
         }
 
-        eprintln!(
-            "{comp} {edge} {target_loc} {dim}",
-            comp = comp.name,
-            edge = edge.id,
-            target_loc = target_loc_name,
-            dim = dim
-        );
-
         Transition {
             id: TransitionID::Simple(edge.id.clone()),
             guard_zone: Transition::combine_edge_guards(&vec![(comp, edge)], dim),

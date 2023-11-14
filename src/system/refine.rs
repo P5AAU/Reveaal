@@ -1,5 +1,5 @@
 use edbm::zones::OwnedFederation;
-use log::{debug, info, log_enabled, trace, Level};
+use log::{log_enabled, trace, Level};
 
 use crate::model_objects::{
     PassedStateList, PassedStateListExt, StatePair, Transition, WaitingStateList,
@@ -154,7 +154,7 @@ pub fn check_refinement(sys1: TransitionSystemPtr, sys2: TransitionSystemPtr) ->
 
     while !context.waiting_list.is_empty() {
         let curr_pair = context.waiting_list.pop().unwrap();
-        trace!("Checking {}", curr_pair);
+        eprintln!("Checking {}", curr_pair);
 
         context.passed_list.put(curr_pair.clone());
         for output in &outputs {

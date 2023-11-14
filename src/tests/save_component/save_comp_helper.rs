@@ -13,13 +13,13 @@ pub mod util {
     use crate::system::refine;
     use crate::system::save_component::combine_components;
     use crate::system::save_component::PruningStrategy;
+    use crate::ComponentLoader;
     use crate::ProjectLoader;
 
     pub fn reconstructed_component_refines_base_self(input_path: &str, system: &str) {
-        let project_loader = Arc::new(Mutex::new(ProjectLoader::new(
-            String::from(input_path),
-            crate::tests::TEST_SETTINGS,
-        )));
+        let project_loader: Arc<Mutex<dyn ComponentLoader>> = Arc::new(Mutex::new(
+            ProjectLoader::new(String::from(input_path), crate::tests::TEST_SETTINGS),
+        ));
 
         //This query is not executed but simply used to extract an UncachedSystem so the tests can just give system expressions
         let str_query = format!("get-component: {} save-as test", system);
@@ -29,18 +29,16 @@ pub mod util {
 
         let dim: Arc<Mutex<ClockIndex>> = Arc::new(Mutex::new(0));
         let (base_system, new_system) = if let QueryExpression::GetComponent(expr) = &query {
-            let left_project_loader = Arc::clone(&project_loader);
-            let right_project_loader = Arc::clone(&project_loader);
             (
                 extract_system_rep::get_system_recipe(
                     &expr.system,
-                    left_project_loader,
+                    Arc::clone(&project_loader),
                     Arc::clone(&dim),
                     Arc::new(Mutex::new(None)),
                 ),
                 extract_system_rep::get_system_recipe(
                     &expr.system,
-                    right_project_loader,
+                    Arc::clone(&project_loader),
                     Arc::clone(&dim),
                     Arc::new(Mutex::new(None)),
                 ),
