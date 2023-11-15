@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+
 use crate::data_reader::parse_queries;
 use crate::extract_system_rep::ExecutableQueryError;
 use crate::logging::setup_logger;
@@ -25,7 +27,7 @@ pub fn refinement_check(path: &str, query: &str) -> bool {
 }
 
 pub fn run_query(path: &str, query: &str) -> Result<QueryResult, ExecutableQueryError> {
-    let mut project_loader = ProjectLoader::new(String::from(path), crate::tests::TEST_SETTINGS);
+    let project_loader = ProjectLoader::new(String::from(path), crate::tests::TEST_SETTINGS);
     let query = parse_queries::parse_to_expression_tree(query)
         .unwrap()
         .remove(0);
@@ -34,12 +36,12 @@ pub fn run_query(path: &str, query: &str) -> Result<QueryResult, ExecutableQuery
         comment: "".to_string(),
     };
 
-    let query = create_executable_query(&q, project_loader)?;
+    let query = create_executable_query(&q, Arc::new(Mutex::new(project_loader)))?;
 
     Ok(query.execute())
 }
 
 pub fn get_system(path: &str, comp: &str) -> TransitionSystemPtr {
-    let mut project_loader = ProjectLoader::new(String::from(path), crate::tests::TEST_SETTINGS);
+    let project_loader = ProjectLoader::new(String::from(path), crate::tests::TEST_SETTINGS);
     component_loader_to_transition_system(project_loader, comp)
 }

@@ -5,10 +5,9 @@ use reveaal::system::query_failures::QueryResult;
 
 use clap::Parser;
 use reveaal::protobuf_server::services::query_request::Settings;
-use reveaal::{
-    extract_system_rep, parse_queries, start_grpc_server_with_tokio, ComponentLoader, ProjectLoader,
-};
+use reveaal::{extract_system_rep, parse_queries, start_grpc_server_with_tokio, ProjectLoader};
 use std::env;
+use std::sync::{Arc, Mutex};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
@@ -29,12 +28,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 fn start_using_cli(args: Args) {
-    let (mut comp_loader, queries) = parse_args(args);
+    let (comp_loader, queries) = parse_args(args);
+    let comp_loader = Arc::new(Mutex::new(comp_loader));
 
     let mut results = vec![];
     for query in &queries {
         let executable_query = Box::new(
-            extract_system_rep::create_executable_query(query, &mut *comp_loader).unwrap(),
+            extract_system_rep::create_executable_query(query, comp_loader.clone()).unwrap(),
         );
 
         let result = executable_query.execute();
@@ -52,7 +52,7 @@ fn start_using_cli(args: Args) {
     }
 }
 
-fn parse_args(args: Args) -> (Box<dyn ComponentLoader>, Vec<Query>) {
+fn parse_args(args: Args) -> (ProjectLoader, Vec<Query>) {
     match args {
         Args::Query {
             query,
@@ -77,7 +77,7 @@ fn parse_args(args: Args) -> (Box<dyn ComponentLoader>, Vec<Query>) {
                 parse_queries::parse_to_query(&query)
             };
 
-            (Box::new(project_loader), queries)
+            (project_loader, queries)
         }
         _ => unreachable!("This function should only be called when the args are a query"),
     }

@@ -76,7 +76,7 @@ fn send_query(
 
     model.set_settings(query_request.settings.unwrap_or(crate::DEFAULT_SETTINGS));
 
-    match extract_system_rep::create_executable_query(&query, model) {
+    match extract_system_rep::create_executable_query(&query, Arc::new(Mutex::new(model))) {
         Ok(query) => {
             let result = query.execute();
             Ok(QueryResponse {

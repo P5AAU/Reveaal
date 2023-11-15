@@ -1,5 +1,8 @@
 #[cfg(test)]
 pub mod util {
+    use std::sync::Arc;
+    use std::sync::Mutex;
+
     use crate::data_reader::parse_queries;
     use crate::model_objects::expressions::QueryExpression;
     use crate::system::extract_system_rep;
@@ -9,7 +12,6 @@ pub mod util {
     use crate::system::save_component::combine_components;
     use crate::system::save_component::PruningStrategy;
     use crate::ProjectLoader;
-    use edbm::util::constraints::ClockIndex;
 
     pub fn json_reconstructed_component_refines_base_self(input_path: &str, system: &str) {
         let project_loader =
@@ -21,28 +23,30 @@ pub mod util {
             .unwrap()
             .remove(0);
 
-        let mut dim: ClockIndex = 0;
+        let dim = Arc::new(Mutex::new(0));
         let (base_system, new_system) = if let QueryExpression::GetComponent(expr) = &query {
-            let mut comp_loader = project_loader;
+            let comp_loader = Arc::new(Mutex::new(project_loader));
             (
                 extract_system_rep::get_system_recipe(
                     &expr.system,
-                    &mut comp_loader,
-                    &mut dim,
-                    &mut None,
+                    comp_loader.clone(),
+                    dim.clone(),
+                    Arc::new(Mutex::new(None)),
                 )
                 .unwrap(),
                 extract_system_rep::get_system_recipe(
                     &expr.system,
-                    &mut comp_loader,
-                    &mut dim,
-                    &mut None,
+                    comp_loader.clone(),
+                    dim.clone(),
+                    Arc::new(Mutex::new(None)),
                 )
                 .unwrap(),
             )
         } else {
             panic!("Failed to create system")
         };
+
+        let dim = *dim.lock().unwrap();
 
         let new_comp = new_system.compile(dim);
         //TODO:: Return the SystemRecipeFailure if new_comp is a failure

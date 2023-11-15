@@ -1,3 +1,6 @@
+use std::sync::Arc;
+use std::sync::Mutex;
+
 use crate::data_reader::component_loader::ComponentLoader;
 use crate::extract_system_rep::SystemRecipe;
 use crate::model_objects::State;
@@ -104,20 +107,23 @@ impl ExecutableQuery for ReachabilityExecutor {
     }
 }
 
-pub struct GetComponentExecutor<'a> {
+pub struct GetComponentExecutor<T: ComponentLoader> {
     pub system: TransitionSystemPtr,
     pub comp_name: String,
-    pub component_loader: &'a mut dyn ComponentLoader,
+    pub component_loader: Arc<Mutex<T>>,
 }
 
-impl<'a> ExecutableQuery for GetComponentExecutor<'a> {
+impl<T: ComponentLoader> ExecutableQuery for GetComponentExecutor<T> {
     fn execute(self: Box<Self>) -> QueryResult {
         let mut comp = combine_components(&self.system, PruningStrategy::Reachable);
         comp.name = self.comp_name;
 
         comp.remake_edge_ids();
 
-        self.component_loader.save_component(comp.clone());
+        self.component_loader
+            .lock()
+            .unwrap()
+            .save_component(comp.clone());
 
         QueryResult::GetComponent(comp)
     }

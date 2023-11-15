@@ -2,8 +2,6 @@ pub mod reachability_test_helper_functions {
     use std::sync::Arc;
     use std::sync::Mutex;
 
-    use edbm::util::constraints::ClockIndex;
-
     use crate::extract_system_rep::get_system_recipe;
     use crate::extract_system_rep::SystemRecipe;
     use crate::model_objects::expressions::StateExpression;

@@ -75,7 +75,7 @@ pub fn simulation_info_to_transition_system(
     let info = simulation_info.components_info.as_ref().unwrap();
     let user_id = simulation_info.user_id;
 
-    let mut component_container =
+    let component_container =
         get_or_insert_model(model_cache, user_id, info.components_hash, &info.components);
 
     component_loader_to_transition_system(component_container, &composition)
