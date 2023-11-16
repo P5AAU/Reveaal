@@ -1,4 +1,7 @@
-use std::collections::{HashMap, VecDeque};
+use std::{
+    collections::{HashMap, VecDeque},
+    rc::Rc,
+};
 
 use edbm::zones::OwnedFederation;
 
@@ -8,20 +11,20 @@ pub type PassedStateList = PassedStateListFed;
 type PassedStateListFed = HashMap<(LocationID, LocationID), OwnedFederation>;
 type PassedStateListVec = HashMap<(LocationID, LocationID), Vec<OwnedFederation>>;
 
-pub type WaitingStateList = DepthFirstWaitingStateList;
-pub struct DepthFirstWaitingStateList {
-    queue: VecDeque<StatePair>,
+pub type WaitingStateList<'a> = DepthFirstWaitingStateList<'a>;
+pub struct DepthFirstWaitingStateList<'a> {
+    queue: VecDeque<&'a mut StatePair>,
     map: HashMap<(LocationID, LocationID), VecDeque<OwnedFederation>>,
 }
 
 pub trait PassedStateListExt {
-    fn put(&mut self, pair: StatePair);
-    fn has(&self, pair: &StatePair) -> bool;
+    fn put(&mut self, pair: &mut StatePair);
+    fn has(&self, pair: StatePair) -> bool;
     fn zones(&self, key: &(LocationID, LocationID)) -> Vec<&OwnedFederation>;
 }
 
 impl PassedStateListExt for PassedStateListVec {
-    fn put(&mut self, mut pair: StatePair) {
+    fn put(&mut self, mut pair: &mut StatePair) {
         let fed = pair.take_zone();
         let (loc1, loc2) = (pair.locations1.id, pair.locations2.id);
         let key = (loc1, loc2);
@@ -32,7 +35,7 @@ impl PassedStateListExt for PassedStateListVec {
         };
     }
 
-    fn has(&self, pair: &StatePair) -> bool {
+    fn has(&self, pair: StatePair) -> bool {
         let (loc1, loc2, fed) = (
             pair.locations1.id.clone(),
             pair.locations2.id.clone(),
@@ -53,8 +56,8 @@ impl PassedStateListExt for PassedStateListVec {
     }
 }
 
-impl PassedStateListExt for DepthFirstWaitingStateList {
-    fn put(&mut self, mut pair: StatePair) {
+impl PassedStateListExt for DepthFirstWaitingStateList<'_> {
+    fn put(&mut self, pair: &mut StatePair) {
         self.queue.push_front(pair.clone());
         let fed = pair.take_zone();
         let (loc1, loc2) = (pair.locations1.id, pair.locations2.id);
@@ -65,7 +68,7 @@ impl PassedStateListExt for DepthFirstWaitingStateList {
             self.map.insert(key, vec![fed].into());
         };
     }
-    fn has(&self, pair: &StatePair) -> bool {
+    fn has(&self, pair: StatePair) -> bool {
         let (loc1, loc2, fed) = (
             pair.locations1.id.clone(),
             pair.locations2.id.clone(),
@@ -85,13 +88,13 @@ impl PassedStateListExt for DepthFirstWaitingStateList {
     }
 }
 
-impl Default for DepthFirstWaitingStateList {
+impl Default for DepthFirstWaitingStateList<'_> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl DepthFirstWaitingStateList {
+impl DepthFirstWaitingStateList<'_> {
     pub fn new() -> Self {
         DepthFirstWaitingStateList {
             queue: VecDeque::new(),
@@ -115,7 +118,7 @@ impl DepthFirstWaitingStateList {
     }
 }
 impl PassedStateListExt for PassedStateListFed {
-    fn put(&mut self, mut pair: StatePair) {
+    fn put(&mut self, pair: &mut StatePair) {
         let mut fed = pair.take_zone();
         let (loc1, loc2) = (pair.locations1.id, pair.locations2.id);
         let key = (loc1, loc2);
@@ -126,7 +129,7 @@ impl PassedStateListExt for PassedStateListFed {
         self.insert(key, fed);
     }
 
-    fn has(&self, pair: &StatePair) -> bool {
+    fn has(&self, pair: StatePair) -> bool {
         let (loc1, loc2, fed) = (
             pair.locations1.id.clone(),
             pair.locations2.id.clone(),

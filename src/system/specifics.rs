@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use std::{collections::HashMap, fmt};
 
 use edbm::util::constraints::{ClockIndex, Conjunction, Constraint, Disjunction};
@@ -301,7 +302,7 @@ impl SpecificState {
 
     /// Create a new [SpecificState] from a [StatePair] and its pair of transition systems.
     pub fn from_state_pair(
-        state: &StatePair,
+        state: &Rc<StatePair>,
         sys1: &dyn TransitionSystem,
         sys2: &dyn TransitionSystem,
     ) -> Self {
@@ -374,7 +375,7 @@ pub fn specific_clock_comp_map_composite(
 
 /// Get the [SpecificLocation] of a [StatePair] given the transition systems.
 pub fn state_pair_specific_location(
-    state: &StatePair,
+    state: &Rc<StatePair>,
     sys1: &dyn TransitionSystem,
     sys2: &dyn TransitionSystem,
 ) -> SpecificLocation {

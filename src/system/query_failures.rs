@@ -1,3 +1,4 @@
+use std::rc::Rc;
 use std::{collections::HashSet, fmt};
 
 use crate::model_objects::{Component, State, StatePair};
@@ -241,7 +242,7 @@ impl RefinementFailure {
         sys1: &dyn TransitionSystem,
         sys2: &dyn TransitionSystem,
         action: impl Into<String>,
-        state: &StatePair,
+        state: &Rc<StatePair>,
     ) -> RefinementResult {
         let action: String = action.into();
         let is_input = sys1.inputs_contain(&action) || sys2.inputs_contain(&action);
@@ -257,7 +258,7 @@ impl RefinementFailure {
         sys1: &dyn TransitionSystem,
         sys2: &dyn TransitionSystem,
         action: impl Into<String>,
-        state: &StatePair,
+        state: &Rc<StatePair>,
     ) -> RefinementResult {
         let action: String = action.into();
         let is_input = sys1.inputs_contain(&action) || sys2.inputs_contain(&action);

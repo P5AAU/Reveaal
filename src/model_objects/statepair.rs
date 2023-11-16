@@ -1,14 +1,17 @@
 use edbm::zones::OwnedFederation;
 
 use crate::transition_systems::{LocationTree, TransitionSystemPtr};
-use std::fmt::{Display, Formatter};
+use std::{
+    cell::RefCell,
+    fmt::{Display, Formatter},
+};
 
 #[derive(Clone, Debug)]
 pub struct StatePair {
     pub locations1: LocationTree,
     pub locations2: LocationTree,
     /// The sentinel (Option) allows us to take ownership of the internal fed from a mutable reference
-    zone_sentinel: Option<OwnedFederation>,
+    zone_sentinel: RefCell<Option<OwnedFederation>>,
 }
 
 impl StatePair {
@@ -22,7 +25,7 @@ impl StatePair {
         StatePair {
             locations1,
             locations2,
-            zone_sentinel: Some(zone),
+            zone_sentinel: RefCell::new(Some(zone)),
         }
     }
 
@@ -55,16 +58,16 @@ impl StatePair {
         self.ref_zone().clone()
     }
 
-    pub fn ref_zone(&self) -> &OwnedFederation {
-        self.zone_sentinel.as_ref().unwrap()
+    pub fn ref_zone(&self) -> OwnedFederation {
+        self.zone_sentinel.borrow().unwrap()
     }
 
-    pub fn take_zone(&mut self) -> OwnedFederation {
-        self.zone_sentinel.take().unwrap()
+    pub fn take_zone(&self) -> OwnedFederation {
+        self.zone_sentinel.borrow_mut().take().unwrap()
     }
 
     pub fn set_zone(&mut self, zone: OwnedFederation) {
-        self.zone_sentinel = Some(zone);
+        self.zone_sentinel = RefCell::new(Some(zone));
     }
 
     pub fn extrapolate_max_bounds(
