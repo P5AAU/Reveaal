@@ -302,15 +302,15 @@ impl SpecificState {
 
     /// Create a new [SpecificState] from a [StatePair] and its pair of transition systems.
     pub fn from_state_pair(
-        state: &Rc<StatePair>,
+        pair: Rc<StatePair>,
         sys1: &dyn TransitionSystem,
         sys2: &dyn TransitionSystem,
     ) -> Self {
-        let locations = state_pair_specific_location(state, sys1, sys2);
+        let locations = state_pair_specific_location(pair.clone(), sys1, sys2);
 
         let clock_map = specific_clock_comp_map_composite(sys1, sys2);
 
-        let constraints = state.ref_zone().minimal_constraints();
+        let constraints = pair.ref_zone().minimal_constraints();
         let constraints = SpecificDisjunction::from_disjunction(constraints, &clock_map);
         Self {
             locations,
@@ -375,12 +375,12 @@ pub fn specific_clock_comp_map_composite(
 
 /// Get the [SpecificLocation] of a [StatePair] given the transition systems.
 pub fn state_pair_specific_location(
-    state: &Rc<StatePair>,
+    state: Rc<StatePair>,
     sys1: &dyn TransitionSystem,
     sys2: &dyn TransitionSystem,
 ) -> SpecificLocation {
-    let left = specific_location(&state.locations1.id, sys1);
-    let right = specific_location(&state.locations2.id, sys2);
+    let left = specific_location(&state.locations1.borrow().id, sys1);
+    let right = specific_location(&state.locations2.borrow().id, sys2);
     SpecificLocation::BranchLocation(Box::new(left), Box::new(right), SystemType::Refinement)
 }
 

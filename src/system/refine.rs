@@ -27,7 +27,7 @@ impl StatePairResult {
         sys1: &TransitionSystemPtr,
         sys2: &TransitionSystemPtr,
         action: &str,
-        curr_pair: &Rc<StatePair>,
+        curr_pair: Rc<StatePair>,
     ) -> RefinementResult {
         match self {
             StatePairResult::Valid => Ok(()),
@@ -140,19 +140,23 @@ pub fn check_refinement(sys1: TransitionSystemPtr, sys2: TransitionSystemPtr) ->
     let initial_locations_1 = initial_locations_1.unwrap();
     let initial_locations_2 = initial_locations_2.unwrap();
 
-    let mut initial_pair = &mut Rc::new(StatePair::from_locations(
+    let initial_pair = Rc::new(StatePair::from_locations(
         dimensions,
         initial_locations_1.clone(),
         initial_locations_2.clone(),
     ));
 
-    if !prepare_init_state(initial_pair, initial_locations_1, initial_locations_2) {
+    if !prepare_init_state(
+        initial_pair.clone(),
+        initial_locations_1,
+        initial_locations_2,
+    ) {
         return RefinementFailure::empty_initial(sys1.as_ref(), sys2.as_ref());
     }
     initial_pair.extrapolate_max_bounds(context.sys1, context.sys2);
 
     debug!("Initial {}", initial_pair);
-    context.waiting_list.put(initial_pair);
+    context.waiting_list.put(initial_pair.clone());
 
     while !context.waiting_list.is_empty() {
         let curr_pair = context.waiting_list.pop().unwrap();
@@ -175,11 +179,11 @@ pub fn check_refinement(sys1: TransitionSystemPtr, sys2: TransitionSystemPtr) ->
             has_valid_state_pairs(
                 &output_transition1,
                 &output_transition2,
-                &curr_pair,
+                curr_pair.clone(),
                 &mut context,
                 true,
             )
-            .check(&sys1, &sys2, output, &curr_pair)?;
+            .check(&sys1, &sys2, output, curr_pair)?;
         }
 
         for input in &inputs {
@@ -199,11 +203,11 @@ pub fn check_refinement(sys1: TransitionSystemPtr, sys2: TransitionSystemPtr) ->
             has_valid_state_pairs(
                 &input_transitions2,
                 &input_transitions1,
-                &curr_pair,
+                curr_pair.clone(),
                 &mut context,
                 false,
             )
-            .check(&sys1, &sys2, input, &curr_pair)?;
+            .check(&sys1, &sys2, input, curr_pair)?;
         }
     }
     info!("Refinement check passed");
@@ -239,11 +243,12 @@ fn print_relation(passed_list: &PassedStateList) {
 fn has_valid_state_pairs(
     transitions1: &[Transition],
     transitions2: &[Transition],
-    curr_pair: &Rc<StatePair>,
+    curr_pair: Rc<StatePair>,
     context: &mut RefinementContext,
     is_state1: bool,
 ) -> StatePairResult {
-    let (fed1, fed2) = get_guard_fed_for_sides(transitions1, transitions2, &curr_pair, is_state1);
+    let (fed1, fed2) =
+        get_guard_fed_for_sides(transitions1, transitions2, curr_pair.clone(), is_state1);
 
     // If there are no valid transition1s, continue
     if fed1.is_empty() {
@@ -275,7 +280,7 @@ fn has_valid_state_pairs(
 fn get_guard_fed_for_sides(
     transitions1: &[Transition],
     transitions2: &[Transition],
-    curr_pair: &Rc<StatePair>,
+    curr_pair: Rc<StatePair>,
     is_state1: bool,
 ) -> (OwnedFederation, OwnedFederation) {
     let dim = curr_pair.ref_zone().dim();
@@ -314,15 +319,19 @@ enum BuildResult {
 fn try_create_new_state_pairs(
     transitions1: &[Transition],
     transitions2: &[Transition],
-    curr_pair: &Rc<StatePair>,
+    curr_pair: Rc<StatePair>,
     context: &mut RefinementContext,
     is_state1: bool,
 ) -> BuildResult {
     for transition1 in transitions1 {
         for transition2 in transitions2 {
-            if let BuildResult::Failure =
-                build_state_pair(transition1, transition2, curr_pair, context, is_state1)
-            {
+            if let BuildResult::Failure = build_state_pair(
+                transition1,
+                transition2,
+                curr_pair.clone(),
+                context,
+                is_state1,
+            ) {
                 return BuildResult::Failure;
             }
         }
@@ -339,7 +348,7 @@ fn build_state_pair(
     is_state1: bool,
 ) -> BuildResult {
     //Creates new state pair
-    let mut new_sp = Rc::clone(&curr_pair);
+    let new_sp = Rc::clone(&curr_pair);
     //Creates DBM for that state pair
     let mut new_sp_zone = new_sp.take_zone();
     //Apply guards on both sides
@@ -401,7 +410,7 @@ fn build_state_pair(
 
     new_sp.extrapolate_max_bounds(context.sys1, context.sys2);
 
-    if !context.passed_list.has(&new_sp) && !context.waiting_list.has(&new_sp) {
+    if !context.passed_list.has(new_sp.clone()) && !context.waiting_list.has(new_sp) {
         debug!("New state {}", new_sp);
 
         context.waiting_list.put(new_sp);
@@ -411,7 +420,7 @@ fn build_state_pair(
 }
 
 fn prepare_init_state(
-    initial_pair: &mut Rc<StatePair>,
+    initial_pair: Rc<StatePair>,
     initial_locations_1: LocationTree,
     initial_locations_2: LocationTree,
 ) -> bool {
@@ -419,7 +428,7 @@ fn prepare_init_state(
     sp_zone = initial_locations_1.apply_invariants(sp_zone);
     sp_zone = initial_locations_2.apply_invariants(sp_zone);
 
-    initial_pair.set_zone(sp_zone);
+    initial_pair.clone().set_zone(sp_zone);
 
     !initial_pair.ref_zone().is_empty()
 }
