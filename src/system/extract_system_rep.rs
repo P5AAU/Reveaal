@@ -8,6 +8,8 @@ use crate::system::executable_query::{
 use crate::system::extract_state::get_state;
 use std::collections::HashMap;
 
+use std::rc::Rc;
+
 use crate::transition_systems::{
     CompiledComponent, Composition, Conjunction, Quotient, TransitionSystemPtr,
 };
@@ -49,7 +51,17 @@ pub fn create_executable_query<'a>(
     if let Some(query) = full_query.get_query() {
         match query {
             QueryExpression::Refinement(left_side, right_side) => {
+
                 let mut quotient_index = None;
+                let mut left;
+                let mut right;
+
+                rayon::scope(|s| {
+                    s.spawn(|_| left = get_system_recipe(left_side, component_loader, &mut dim, &mut quotient_index)
+                    .unwrap());
+                    s.spawn(|_| right = get_system_recipe(right_side, component_loader, &mut dim, &mut quotient_index)
+                    .unwrap());
+                });
 
                 let mut left =
                     get_system_recipe(left_side, component_loader, &mut dim, &mut quotient_index)

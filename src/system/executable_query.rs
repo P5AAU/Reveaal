@@ -12,6 +12,8 @@ use super::query_failures::SyntaxResult;
 use super::save_component::PruningStrategy;
 use super::specifics::SpecificDecision;
 
+
+
 impl QueryResult {
     pub fn print_result(&self, query_str: &str) {
         match self {
